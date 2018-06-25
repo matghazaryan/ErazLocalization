@@ -1,0 +1,4 @@
+rootProject.name = 'ErazLocalization'
+include 'LocalizationBackend'
+include 'LocalizationFrontend'
+
