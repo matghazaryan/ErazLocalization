@@ -1,5 +1,6 @@
 .gradle
 .idea
+/build/*
 /LocalizationFrontend/web/*
 /LocalizationFrontend/out/*
 /LocalizationBackend/out/*
