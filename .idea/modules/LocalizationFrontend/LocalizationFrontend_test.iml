@@ -3,7 +3,7 @@
   <component name="FacetManager">
     <facet type="kotlin-language" name="Kotlin">
       <configuration version="3" platform="JavaScript " useProjectSettings="false">
-        <productionOutputPath>$MODULE_DIR$/../../../LocalizationFrontend/build/classes/kotlin/main/LocalizationFrontend.js</productionOutputPath>
+        <productionOutputPath>$MODULE_DIR$/../../../LocalizationFrontend/web/js/app.js</productionOutputPath>
         <compilerSettings />
         <compilerArguments>
           <option name="outputFile" value="$MODULE_DIR$/../../../LocalizationFrontend/build/classes/kotlin/test/LocalizationFrontend_test.js" />

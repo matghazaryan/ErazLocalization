@@ -1,0 +1,5 @@
+.gradle
+.idea
+/LocalizationFrontend/web/*
+/LocalizationFrontend/out/*
+/LocalizationBackend/out/*

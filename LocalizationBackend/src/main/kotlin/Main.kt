@@ -1,3 +1,5 @@
+import com.google.api.client.json.Json
+import com.google.common.net.MediaType
 import org.jetbrains.ktor.application.call
 import org.jetbrains.ktor.host.embeddedServer
 import org.jetbrains.ktor.netty.Netty
@@ -8,6 +10,7 @@ import javafx.scene.web.WebHistory
 import kotlinx.coroutines.experimental.newCoroutineContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import org.jetbrains.ktor.application.log
 import org.jetbrains.ktor.application.receive
 import org.jetbrains.ktor.client.RequestBuilder
@@ -24,22 +27,28 @@ fun main(args: Array<String>) {
             get("/api/database") {
                 val queries = call.request.queryParameters
                 val dbName = queries["name"]
-                val client = OkHttpClient()
-                val request = Request.Builder().url("https://localization-1be56.firebaseio.com/" + dbName + ".json")
-                        .build()
-                val response = client.newCall(request).execute()
-                val str = response.body()?.string()
+                val str = FirebaseManager().getProjectData(dbName.toString())
                 call.response.header("Access-Control-Allow-Origin", "*")
                 call.respondText(str.toString(), ContentType.Application.Json)
             }
-            post("/api/{path}/") {
+            post("/api/eraz-local/{path}/") {
                 val body = call.request.receive<String>()
                 val path = call.parameters["path"]
-                if (path.equals(Constants.CREATE.toString(), true)) {
-                    val json = Gson().fromJson(body, HashMap<String, String>().javaClass)
-                    var appAlias = json["app_alias"]
-
-                    call.respondText(appAlias.toString())
+                //var JSON = MediaType.parse("application/json; charset=utf-8")
+                if (path.equals(Constants.PATH.CREATE_PROJECT, true)) {
+                    val reqBody = Gson().fromJson(body, HashMap<String, String>().javaClass)
+                    val appAlias = reqBody["alias"]
+                    val appName = reqBody["name"]
+                    val url = "https://" + Constants.FIREBASE.PROJECT_ID + ".firebaseio.com/" + appAlias + ".json"
+                    val json = Gson().toJson(hashMapOf("name" to "jack",
+                            "surname" to "sparrow"))
+                    val client = OkHttpClient()
+                    val body = RequestBody.create(okhttp3.MediaType.parse("application/json; charset=utf-8"), json)
+                    val request =  Request.Builder().url(url)
+                            .post(body)
+                            .build()
+                    val response = client.newCall(request).execute()
+                    call.respondText(response.body()?.string().toString())
                 } else {
                     call.respond("Unknown path")
                 }
