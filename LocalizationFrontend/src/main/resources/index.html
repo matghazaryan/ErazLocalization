@@ -1,12 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/styles.css" media="screen,projection"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Localization</title>
 </head>
 <body>
+
+<!--<div style="display:block">-->
+    <!--<label for="name_id">Enter project name:</label>-->
+    <!--<input id="name_id" name="name" placeholder="name"/>-->
+
+    <!--<label for="alias_id">Enter project name:</label>-->
+    <!--<input id="alias_id" name="alias" placeholder="Alias"/>-->
+<!--</div>-->
+<!--<button id="push_id" type="button" style="display:block">Push</button>-->
+
+<header>
+    <nav class="top-nav">
+        <div class="container">
+            <h1 class="header">Localization</h1>
+        </div>
+    </nav>
+
+
+</header>
+
+<main>
+    <div class="container">
+        <div class="collection with-header">
+            <div class="collection-header"><h4>Projects</h4></div>
+
+            <div class="row collection-item">
+
+                <div class="col s12 m3">
+                    <div class="card">
+                        <div class="card-container">
+                            <img src="images/icon-plus.png" alt="Add Project" height="36" width="36">
+                            <p>Add Project</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12 m3">
+                    <div class="card">
+                        <div class="card-content black-text">
+                            <span class="card-title">Arca</span>
+                            <p>com.helix.arca</p>
+
+                            <div class="platform-container">
+                                <img src="images/icon-ios.png" alt="iOS" height="24" width="24">
+                                <img src="images/icon-android.png" alt="Android" height="24" width="24">
+                                <img src="images/icon-website.png" alt="Web" height="24" width="24">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col s12 m3">
+                    <div class="card">
+                        <div class="card-content black-text">
+                            <span class="card-title">Globbing</span>
+                            <p>com.helix.globbing</p>
+
+                            <div class="platform-container">
+                                <img src="images/icon-ios.png" alt="iOS" height="24" width="24">
+                                <img src="images/icon-android.png" alt="Android" height="24" width="24">
+                                <img src="images/icon-website.png" alt="Web" height="24" width="24">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
+<script type="text/javascript" src="../../../web/js/app.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
+
 <script>
     console.log("ok")
     // Initialize Firebase
@@ -20,16 +99,6 @@
     };
     firebase.initializeApp(config);
 </script>
-<div style="display:block">
-    <label for="name_id">Enter project name:</label>
-    <input id="name_id" name="name" placeholder="name"/>
 
-    <label for="alias_id">Enter project name:</label>
-    <input id="alias_id" name="alias" placeholder="Alias"/>
-</div>
-<button id="push_id" type="button" style="display:block">Push</button>
-
-<script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
-<script type="text/javascript" src="../../../web/js/app.js"></script>
 </body>
 </html>
