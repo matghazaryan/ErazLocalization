@@ -20,24 +20,38 @@ fun main(args: Array<String>) {
     window.onload = {
         console.log("WTF!!!?????")
         // notify changes
-        dbRef.on(Constants.FIREBASE.contentType.VALUE, fun (value: Any) {
-            onValueChange(value)
-        })
-        val button = document.getElementById("button_id")
+        val onValueChange = fun (value: Any) {
+            count = js("value.numChildren()") as Int
+            console.log("count = $count")
+            js("console.log(value.val())")
+        }
+//        dbRef.on(Constants.FIREBASE.contentType.VALUE, onValueChange)
+        getProjects {
+            it.forEach {
+                val element = document.getElementById(it["alias"] as String)
+                if (element != null) {
+                    element?.let { it1 -> document.body?.removeChild(it1) }
+                }
+                var label = document.createElement("h1")
+                label.id = it["alias"] as String
+                label.innerHTML = it["name"] as String
+                document.body?.appendChild(label)
+            }
+        }
+        val button = document.getElementById("push_id")
+        val name = document.getElementById("name_id") as HTMLInputElement
+        val alias = document.getElementById("alias_id") as HTMLInputElement
         //bind click listener on button
         button?.addEventListener("click", fun(event: Event) {
-            createProject("onex", "amHelixOnex")
+            if (name != null && alias != null) {
+                createProject(name.value, alias.value)
+            }
         })
 
     }
 }
 
 var count = 0
-fun onValueChange(value: Any) {
-    count = js("value.numChildren()")
-    console.log("count = $count")
-    js("console.log(value.val())")
-}
 
 fun createStylesheetLink(filePath: String): Element {
     val style = document.createElement("link")

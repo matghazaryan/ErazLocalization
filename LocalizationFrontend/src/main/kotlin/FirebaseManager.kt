@@ -1,10 +1,6 @@
 import kotlin.js.Json
 
 fun createProject(name: String, alias: String): String {
-    val code = hashMapOf<String, HashMap<String, String>>(name to hashMapOf(
-            "name" to name,
-            "alias" to alias
-    ))
     val json = createJson()
     json[name] = JSON.parse<Json>("{ \"name\" : \"$name\"," +
                                         "\"alias\" : \"$alias\" }")
@@ -26,6 +22,21 @@ fun addScreens(name: String, vararg names: String) {
 fun addTypes(name: String, vararg  names: String) {
     addArray("types", name, *names)
 }
+
+fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
+    var projects = ArrayList<HashMap<String, String>>()
+    dbRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
+                snapshot.forEach(fun (child: dynamic) {
+                    val element = hashMapOf<String, String>("name" to child.toJSON().name,
+                            "alias" to child.toJSON().alias)
+                    projects.add(element)
+                })
+                completion(projects.toTypedArray())
+            })
+}
+
+
+/// Helpers
 
 fun addArray(child: String, name: String, vararg names: String) {
     var arrayString = "["
