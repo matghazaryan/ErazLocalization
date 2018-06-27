@@ -8,51 +8,35 @@ import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.js.Json
 
+external fun require(module:String):dynamic
+
+// Բայց սոռտ է, մարդավարի ES5/ES6 ով կգրես, require('firebase/app') կամ import firebase from 'firebase'
+// չի աշխատի, տողի վրա կգրես, կաշխատի 😂
+
+var firebase: dynamic = js("firebase")
+var dbRef = firebase.database().ref().child("projects")
+
 fun main(args: Array<String>) {
     window.onload = {
-        //fetch("1")
         console.log("WTF!!!?????")
-//        //Example of how to add stylesheets dynamically
-//        //add stylesheet if we have any
-//        val head = document.getElementsByTagName("head")
-//        head.get(0).appendChild(createStylesheetLink("style.css"))
-        //bind elements
-        /*val input = document.getElementById("count_id") as HTMLInputElement
-         */
-        var x = 0
+        // notify changes
+        dbRef.on(Constants.FIREBASE.contentType.VALUE, fun (value: Any) {
+            onValueChange(value)
+        })
         val button = document.getElementById("button_id")
         //bind click listener on button
         button?.addEventListener("click", fun(event: Event) {
-            fetch()
+            createProject("onex", "amHelixOnex")
         })
 
     }
 }
 
-fun fetch() {
-    val url = "https://" + Constants.FIREBASE.PROJECT_ID + ".firebaseio.com/" + "arca" + ".json"
-    val req = XMLHttpRequest()
-    req.onload = fun(event: Event) {
-        val text = req.responseText
-        val json = JSON.parse<Json>(text)
-        val textArea = document.getElementById("textarea_id") as HTMLTextAreaElement
-        textArea.value = ""
-        var response = mutableMapOf<String, Any>()
-        var screens = mutableListOf<String>()
-        for (key in js("Object").keys(json)) {
-            // screen name is first layer
-            screens.add(key)
-        }
-        response.put("screens", screens)
-//        objectArray.forEach {
-//            val message = it.key + ":" + it.value
-//            textArea.value = message
-//        }
-
-        console.log(response)
-     }
-     req.open("GET", url, true)
-     req.send()
+var count = 0
+fun onValueChange(value: Any) {
+    count = js("value.numChildren()")
+    console.log("count = $count")
+    js("console.log(value.val())")
 }
 
 fun createStylesheetLink(filePath: String): Element {

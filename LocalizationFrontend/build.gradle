@@ -30,19 +30,47 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
-compileKotlin2Js {
-    kotlinOptions.metaInfo = true
-    kotlinOptions.outputFile = "${projectDir}/web/js/app.js"
-    kotlinOptions.sourceMap = true
-    kotlinOptions.main = "call"
-}
-/*
-compileKotlin2Js.kotlinOptions.sourceMap = true
+
+compileKotlin2Js.kotlinOptions.metaInfo = true
 compileKotlin2Js.kotlinOptions.outputFile = "${projectDir}/web/js/app.js"
+compileKotlin2Js.kotlinOptions.sourceMap = true
+compileKotlin2Js.kotlinOptions.main = "call"
 compileKotlin2Js.kotlinOptions.suppressWarnings = true
 compileKotlin2Js.kotlinOptions.verbose = true
-compileKotlin2Js.kotlinOptions.moduleKind = "commonjs"
-*/
+compileKotlin2Js.kotlinOptions.moduleKind = "amd"
+
+kotlinFrontend {
+    downloadNodeJsVersion = "latest"
+
+    npm {
+//        dependency("kotlin", "1.1.0")
+        dependency "style-loader"
+
+        devDependency("karma")
+    }
+
+    webpackBundle {
+        bundleName = "main"
+        contentPath = file('src/main/web')
+//        mode = 'development'
+        mode = 'production'
+    }
+
+    define "PRODUCTION", false
+    define "X", false
+
+//    rollupBundle {
+//        bundleName = "rolledUp"
+//    }
+
+//    allBundles {
+//        /* set properties for all bundles */
+//    }
+
+//    bundle("someBundler") {
+//        ....
+//    }
+}
 
 task assembleWeb(type: Sync) {
     configurations.compile.each { File file ->

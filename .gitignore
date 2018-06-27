@@ -4,3 +4,5 @@
 /LocalizationFrontend/web/*
 /LocalizationFrontend/out/*
 /LocalizationBackend/out/*
+/LocalizationFrontend/node
+/LocalizationFrontend/node_modules
