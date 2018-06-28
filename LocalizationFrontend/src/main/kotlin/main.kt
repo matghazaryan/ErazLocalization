@@ -5,6 +5,7 @@ import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.js.Json
 
+
 external fun require(module:String):dynamic
 
 // Բայց սոռտ է, մարդավարի ES5/ES6 ով կգրես, require('firebase/app') կամ import firebase from 'firebase'
@@ -19,7 +20,7 @@ fun main(args: Array<String>) {
 
         window.onload = {
             getProjects {
-                val divProjects = document.getElementById("projects-collection") as HTMLDivElement
+                val divProjects = document.getElementById("row") as HTMLDivElement
 
                 // Add project card
                 var innerHtml: String = "<div class=\"col s12 m3\">\n" +
@@ -65,12 +66,73 @@ fun main(args: Array<String>) {
             }
         }
     } else if (window.location.href.contains("project.html")) {
+        val targetProjectAlias = document.location?.href?.substringAfterLast("=", "=")
 
+        if (targetProjectAlias != null) {
+            val collectionElement = document.getElementById("collection-header")
+
+            getProject(targetProjectAlias) {
+                val projectName = it["name"]
+                val projectAlias = it["alias"]
+
+                if (collectionElement != null) {
+
+                    var innerHtml =  "<div class=\"collection-header\">\n" +
+                            "             <h5>${projectName}</h5>\n" +
+                            "             <h6>${projectAlias}</h6>\n" +
+                            "         </div>"
+                    
+                    innerHtml += "<table>\n" +
+                            "        <thead>\n" +
+                            "          <tr>\n" +
+                            "              <th>N</th>\n" +
+                            "              <th>Screen</th>\n" +
+                            "              <th>Type</th>\n" +
+                            "              <th>Key</th>\n" +
+                            "              <th>Type</th>\n" +
+                            "          </tr>\n" +
+                            "        </thead>\n" +
+                            "\n" +
+                            "        <tbody>\n" +
+                            "          <tr>\n" +
+                            "            <td>Alvin</td>\n" +
+                            "            <td>Eclair</td>\n" +
+                            "            <td>\$0.87</td>\n" +
+                            "          </tr>\n" +
+                            "          <tr>\n" +
+                            "            <td>Alan</td>\n" +
+                            "            <td>Jellybean</td>\n" +
+                            "            <td>\$3.76</td>\n" +
+                            "          </tr>\n" +
+                            "          <tr>\n" +
+                            "            <td>Jonathan</td>\n" +
+                            "            <td>Lollipop</td>\n" +
+                            "            <td>\$7.00</td>\n" +
+                            "          </tr>\n" +
+                            "        </tbody>\n" +
+                            "      </table>"
+
+
+
+                    collectionElement.innerHTML = innerHtml
+                }
+
+
+
+
+
+
+
+
+
+                console.log(it)
+            }
+        }
     }
 }
 
 /// Helpers
-
+/*
 fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
     /*val req = XMLHttpRequest()
     req.overrideMimeType("application/json")
@@ -90,5 +152,5 @@ fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
     })
     callBack(map)
 }
-
+*/
 

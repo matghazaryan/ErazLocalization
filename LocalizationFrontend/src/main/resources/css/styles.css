@@ -61,13 +61,6 @@ table {
     cursor: pointer;
 }
 
-.logo {
-
-    height: 24px;
-    width: 24px;
-}
-
-
 .preloader-wrapper.active {
     position: absolute;
     left:50%;
@@ -84,7 +77,7 @@ table {
     text-align: center;
 }
 
-#projects-collection, #localization {
+#collection-header, #row {
     min-height: 473px;
     position: relative;
 }
