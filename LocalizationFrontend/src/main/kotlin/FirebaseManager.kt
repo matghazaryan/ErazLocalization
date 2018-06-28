@@ -36,6 +36,13 @@ fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
             })
 }
 
+fun getProject(name: String, listener: (Json) -> Unit) {
+    val childRef = dbRef.child(name)
+    childRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
+        listener(snapshot.toJSON() as Json)
+    })
+}
+
 fun addLanguages(name: String, languages: Array<Pair<String, String>>) {
     val childRef = dbRef.child("$name/languages")
     childRef.once(Constants.FIREBASE.contentType.VALUE)
@@ -80,6 +87,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>) {
                     }
                 })
             })
+
 }
 
 

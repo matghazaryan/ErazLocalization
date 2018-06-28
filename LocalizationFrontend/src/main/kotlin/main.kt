@@ -50,7 +50,7 @@ fun main(args: Array<String>) {
         val alias = document.getElementById("alias_id") as HTMLInputElement
         //bind click listener on button
         button?.addEventListener("click", fun(event: Event) {
-            val json = js("langs")
+            /*val json = js("langs")
             val array = arrayListOf<Pair<String, String>>()
             js("Object").keys(json).forEach(fun (key: String) {
                 val checkBox = document.getElementById(key) as HTMLInputElement
@@ -59,6 +59,10 @@ fun main(args: Array<String>) {
                 }
             })
             addLanguages("arca", array.toTypedArray())
+            */
+            getProject("arca", {
+                console.log(it)
+            })
         })
     }
 }
