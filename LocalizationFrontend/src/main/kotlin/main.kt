@@ -1,6 +1,5 @@
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
-import org.w3c.dom.url.URL
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.browser.document
 import kotlin.browser.window
@@ -16,8 +15,8 @@ var dbRef = firebase.database().ref().child("projects")
 
 fun main(args: Array<String>) {
 
-
     if (window.location.href.contains("index.html", false)) {
+
         window.onload = {
             getProjects {
                 val divProjects = document.getElementById("projects-collection") as HTMLDivElement
@@ -69,3 +68,27 @@ fun main(args: Array<String>) {
 
     }
 }
+
+/// Helpers
+
+fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
+    /*val req = XMLHttpRequest()
+    req.overrideMimeType("application/json")
+    req.open("GET", "./langs.json", true)
+    req.onreadystatechange = {
+        if (req.readyState == 4.toShort() && req.status == 200.toShort()) {
+            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+            val map = JSON.parse<HashMap<String, String>>(req.responseText)
+            callBack(map)
+        }
+    }
+    req.send()*/
+    val json = js("langs")
+    val map = hashMapOf<String, String>()
+    js("Object").keys(json).forEach(fun (key: String) {
+        map.put(key, json[key])
+    })
+    callBack(map)
+}
+
+

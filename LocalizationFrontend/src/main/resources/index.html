@@ -9,8 +9,10 @@
     <title>Localization</title>
 </head>
 <body>
+<!-- always keep those lines after <body> tag, from google documentation -->
 <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
+
 <script>
     console.log("ok")
     // Initialize Firebase
@@ -24,6 +26,8 @@
     };
     firebase.initializeApp(config);
 </script>
+<!-- till here -->
+
 <header>
     <nav class="top-nav">
         <div class="container">
@@ -56,5 +60,6 @@
 <script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
 <script type="text/javascript" src="../../../web/js/app.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="./langs.json"></script>
 </body>
 </html>
