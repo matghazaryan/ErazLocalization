@@ -8,7 +8,6 @@ nav.top-nav {
     height: 110px;
     -webkit-box-shadow: none;
     box-shadow: none;
-    /*border-bottom: 1px solid rgba(0,0,0,0.14);*/
     background-color: transparent;
 }
 
@@ -29,6 +28,7 @@ nav.top-nav {
 .card .card-content {
     border-radius: 8px;
     background-color: white;
+
 }
 
 .card:hover {
@@ -58,12 +58,22 @@ table {
     min-height: 204px;
     border-radius: 8px;
     position: relative;
+    cursor: pointer;
 }
 
 .logo {
 
     height: 24px;
     width: 24px;
+}
+
+
+.preloader-wrapper.active {
+    position: absolute;
+    left:50%;
+    top:50%;
+    margin-top: -22px;
+    margin-left: -22px;
 }
 
 .card-container {
@@ -74,6 +84,12 @@ table {
     text-align: center;
 }
 
+#projects-collection, #localization {
+    min-height: 473px;
+    position: relative;
+}
+
+
 .platform-container {
     display: -webkit-flex; /* Safari */
     -webkit-align-items: center; /* Safari 7.0+ */
@@ -81,10 +97,3 @@ table {
     align-items: center;
     margin-top: 70px;
 }
-
-/*.collection-item {*/
-    /*display: -webkit-flex; !* Safari *!*/
-    /*-webkit-align-items: center; !* Safari 7.0+ *!*/
-    /*display: flex;*/
-    /*align-items: center;*/
-/*}*/

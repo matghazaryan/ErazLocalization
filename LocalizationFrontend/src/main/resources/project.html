@@ -9,6 +9,25 @@
     <title>Localization</title>
 </head>
 <body>
+
+
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
+<script>
+    console.log("ok")
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyC2_Mm4_s3YPDEtNiUpZa87B2KDA62onAk",
+        authDomain: "localization-1be56.firebaseapp.com",
+        databaseURL: "https://localization-1be56.firebaseio.com",
+        projectId: "localization-1be56",
+        storageBucket: "localization-1be56.appspot.com",
+        messagingSenderId: "358571947665"
+    };
+    firebase.initializeApp(config);
+</script>
+
+
 <header>
     <nav class="top-nav">
         <div class="container">
@@ -21,31 +40,60 @@
 
 <main>
     <div class="container">
-        <table class="highlight">
-            <thead>
-            <tr>
-                <th>№</th>
-                <th>Screen Name</th>
-                <th>Type</th>
-                <th>Key</th>
-                <th>English</th>
-                <th>Russian</th>
-                <th>Armenian</th>
-            </tr>
-            </thead>
 
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>Login</td>
-                <td>btn</td>
-                <td>title</td>
-                <td>Login</td>
-                <td>Login</td>
-                <td>Login</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="collection with-header">
+            <div class="collection-header">
+                <h5>Project Name</h5>
+                <h6>Project Alias</h6>
+            </div>
+
+            <div class="row collection-item" id="localization">
+                <div class="col s12 m6">
+                    <div class="preloader-wrapper active">
+                        <div class="spinner-layer spinner-red-only">
+                            <div class="circle-clipper left">
+                                <div class="circle"></div>
+                            </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!--<table class="highlight">-->
+            <!--<thead>-->
+            <!--<tr>-->
+                <!--<th>№</th>-->
+                <!--<th>Screen Name</th>-->
+                <!--<th>Type</th>-->
+                <!--<th>Key</th>-->
+                <!--<th>English</th>-->
+                <!--<th>Russian</th>-->
+                <!--<th>Armenian</th>-->
+            <!--</tr>-->
+            <!--</thead>-->
+
+            <!--<tbody>-->
+            <!--<tr>-->
+                <!--<td>1</td>-->
+                <!--<td>Login</td>-->
+                <!--<td>btn</td>-->
+                <!--<td>title</td>-->
+
+                <!--<td>-->
+
+                <!--<td>-->
+                    <!--<input id="email_inline" type="email" class="validate">-->
+                <!--</td>-->
+
+            <!--</tr>-->
+            <!--</tbody>-->
+        <!--</table>-->
     </div>
 </main>
 
