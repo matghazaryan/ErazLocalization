@@ -1,8 +1,7 @@
-import org.w3c.dom.Element
-import org.w3c.dom.HTMLInputElement
-import org.w3c.dom.HTMLTextAreaElement
+import org.w3c.dom.*
+import org.w3c.dom.css.CSSStyleDeclaration
+import org.w3c.dom.css.StyleSheet
 import org.w3c.dom.events.Event
-import org.w3c.dom.get
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.browser.document
 import kotlin.browser.window
@@ -28,14 +27,22 @@ fun main(args: Array<String>) {
 //        dbRef.on(Constants.FIREBASE.contentType.VALUE, onValueChange)
         getProjects {
             it.forEach {
-                val element = document.getElementById(it["alias"] as String)
-                if (element != null) {
-                    element?.let { it1 -> document.body?.removeChild(it1) }
+            }
+        }
+        loadJSON {
+            it.forEach {
+                val div = document.createElement("div") as HTMLDivElement
+                val checkbox = document.createElement("input") as HTMLInputElement
+                checkbox.type = "checkbox"
+                checkbox.id = it.key
+                checkbox.onclick = {
+                    console.log("pll")
                 }
-                var label = document.createElement("h1")
-                label.id = it["alias"] as String
-                label.innerHTML = it["name"] as String
-                document.body?.appendChild(label)
+                val label = document.createElement("label") as HTMLLabelElement
+                label.htmlFor = checkbox.id
+                label.innerText = it.value
+                div.append(label, checkbox)
+                document.body?.appendChild(div)
             }
         }
         val button = document.getElementById("push_id")
@@ -43,15 +50,43 @@ fun main(args: Array<String>) {
         val alias = document.getElementById("alias_id") as HTMLInputElement
         //bind click listener on button
         button?.addEventListener("click", fun(event: Event) {
-            if (name != null && alias != null) {
-                createProject(name.value, alias.value)
-            }
+            val json = js("langs")
+            val array = arrayListOf<Pair<String, String>>()
+            js("Object").keys(json).forEach(fun (key: String) {
+                val checkBox = document.getElementById(key) as HTMLInputElement
+                if (checkBox.checked) {
+                    array.add(key to json[key])
+                }
+            })
+            addLanguages("arca", array.toTypedArray())
         })
-
     }
 }
 
 var count = 0
+
+/// Helpers
+
+fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
+    /*val req = XMLHttpRequest()
+    req.overrideMimeType("application/json")
+    req.open("GET", "./langs.json", true)
+    req.onreadystatechange = {
+        if (req.readyState == 4.toShort() && req.status == 200.toShort()) {
+            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+            val map = JSON.parse<HashMap<String, String>>(req.responseText)
+            callBack(map)
+        }
+    }
+    req.send()*/
+    val json = js("langs")
+    val map = hashMapOf<String, String>()
+    js("Object").keys(json).forEach(fun (key: String) {
+        map.put(key, json[key])
+    })
+    callBack(map)
+}
+
 
 fun createStylesheetLink(filePath: String): Element {
     val style = document.createElement("link")
