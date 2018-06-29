@@ -80,6 +80,7 @@ table {
 #collection-header, #row {
     min-height: 473px;
     position: relative;
+    background-color: white;
 }
 
 
