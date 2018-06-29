@@ -2,10 +2,13 @@ import org.w3c.dom.*
 import org.w3c.dom.css.CSSStyleDeclaration
 import org.w3c.dom.css.StyleSheet
 import org.w3c.dom.events.Event
+import org.w3c.dom.url.URL
+import org.w3c.dom.url.URLSearchParams
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.js.Json
+import kotlin.js.Promise
 
 external fun require(module:String):dynamic
 
@@ -25,29 +28,13 @@ fun main(args: Array<String>) {
             js("console.log(value.val())")
         }
 //        dbRef.on(Constants.FIREBASE.contentType.VALUE, onValueChange)
-        getProjects {
-            it.forEach {
-            }
-        }
-        loadJSON {
-            it.forEach {
-                val div = document.createElement("div") as HTMLDivElement
-                val checkbox = document.createElement("input") as HTMLInputElement
-                checkbox.type = "checkbox"
-                checkbox.id = it.key
-                checkbox.onclick = {
-                    console.log("pll")
-                }
-                val label = document.createElement("label") as HTMLLabelElement
-                label.htmlFor = checkbox.id
-                label.innerText = it.value
-                div.append(label, checkbox)
-                document.body?.appendChild(div)
-            }
+        getProject("arca") {
+            val languages = it["languages"] as Json
+            js("Object").values(languages).forEach(fun (item: dynamic) {
+                console.log(item["langName"] as? String)
+            }) as Unit
         }
         val button = document.getElementById("push_id")
-        val name = document.getElementById("name_id") as HTMLInputElement
-        val alias = document.getElementById("alias_id") as HTMLInputElement
         //bind click listener on button
         button?.addEventListener("click", fun(event: Event) {
             /*val json = js("langs")
@@ -60,9 +47,9 @@ fun main(args: Array<String>) {
             })
             addLanguages("arca", array.toTypedArray())
             */
-            getProject("arca", {
-                console.log(it)
-            })
+            YandexHelper.supportedLanguages().forEach {
+                console.log("${it.key} = ${it.value}")
+            }
         })
     }
 }
@@ -71,25 +58,16 @@ var count = 0
 
 /// Helpers
 
+@Deprecated("As we use Yandex translate, so we need to support same languages like Yandex, use YandexHelper.supportedLanguages() instead", ReplaceWith("YandexHelper.supportedLanguages()"), DeprecationLevel.WARNING)
 fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
-    /*val req = XMLHttpRequest()
-    req.overrideMimeType("application/json")
-    req.open("GET", "./langs.json", true)
-    req.onreadystatechange = {
-        if (req.readyState == 4.toShort() && req.status == 200.toShort()) {
-            // Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
-            val map = JSON.parse<HashMap<String, String>>(req.responseText)
-            callBack(map)
-        }
-    }
-    req.send()*/
     val json = js("langs")
     val map = hashMapOf<String, String>()
     js("Object").keys(json).forEach(fun (key: String) {
-        map.put(key, json[key])
+        map[key] = json[key] as String
     })
     callBack(map)
 }
+
 
 
 fun createStylesheetLink(filePath: String): Element {
@@ -100,3 +78,5 @@ fun createStylesheetLink(filePath: String): Element {
 }
 
 external fun alert(message: Any?): Unit
+external fun encodeURIComponent(uri: String): String
+external fun encodeURI(uri: String): String
