@@ -56,24 +56,29 @@ interface YandexHelper {
             return detectedLang
         }
 
-        fun supportedLanguages(ui: String = "en"): HashMap<String, String> {
-            val url = URL(Constants.YANDEX.LANGUAGES_URL)
-            val searchParams = URLSearchParams()
-            searchParams.append("key", Constants.YANDEX.KEY)
-            searchParams.append("ui", ui)
-            url.search = searchParams.toString()
-            val req = XMLHttpRequest()
-            req.open("POST", url.toString(), false)
-            var supportedLanguages = hashMapOf<String, String>()
-            req.onloadend = {
-                val response = JSON.parse<dynamic>(req.responseText)
-                val langs = response["langs"]
-                Object().keys(langs).forEach(fun (element: dynamic) {
-                    supportedLanguages[element as String] = langs[element] as String
-                })
+        fun supportedLanguages(ui: String = "en"): Promise<HashMap<String, String>> {
+            return Promise { success, reject ->
+                val url = URL(Constants.YANDEX.LANGUAGES_URL)
+                val searchParams = URLSearchParams()
+                searchParams.append("key", Constants.YANDEX.KEY)
+                searchParams.append("ui", ui)
+                url.search = searchParams.toString()
+                val req = XMLHttpRequest()
+                req.open("POST", url.toString(), true)
+                req.onloadend = {
+                    val response = JSON.parse<dynamic>(req.responseText)
+                    if (response["code"] != null) {
+                        reject(Throwable(response["message"] as String))
+                    }
+                    val supportedLanguages = hashMapOf<String, String>()
+                    val langs = response["langs"]
+                    Object().keys(langs).forEach(fun(element: dynamic) {
+                        supportedLanguages[element as String] = langs[element] as String
+                    })
+                    success(supportedLanguages)
+                }
+                req.send()
             }
-            req.send()
-            return supportedLanguages
         }
     }
 }

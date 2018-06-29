@@ -34,7 +34,7 @@
     <!--<label for="alias_id">Enter project name:</label>-->
     <!--<input id="alias_id" name="alias" placeholder="Alias"/>-->
 <!--</div>-->
-<button id="push_id" type="button" style="display:block">Push</button>
+<!--<button id="push_id" type="button" style="display:block">Push</button>-->
 
 <header>
     <nav class="top-nav">
@@ -48,55 +48,26 @@
 
 <main>
     <div class="container">
-        <div class="collection with-header">
+        <div class="collection with-header" id="collection-header" >
             <div class="collection-header"><h4>Projects</h4></div>
-
-            <div class="row collection-item">
-
-                <div class="col s12 m3">
-                    <div class="card">
-                        <div class="card-container">
-                            <img src="images/icon-plus.png" alt="Add Project" height="36" width="36">
-                            <p>Add Project</p>
+            <div class="row collection-item" id = "row">
+                <div class="col s12 m6">
+                    <div class="preloader-wrapper active">
+                        <div class="spinner-layer spinner-red-only">
+                            <div class="circle-clipper left">
+                                <div class="circle"></div>
+                            </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="col s12 m3">
-                    <div class="card">
-                        <div class="card-content black-text">
-                            <span class="card-title">Arca</span>
-                            <p>com.helix.arca</p>
-
-                            <div class="platform-container">
-                                <img src="images/icon-ios.png" alt="iOS" height="24" width="24">
-                                <img src="images/icon-android.png" alt="Android" height="24" width="24">
-                                <img src="images/icon-website.png" alt="Web" height="24" width="24">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col s12 m3">
-                    <div class="card">
-                        <div class="card-content black-text">
-                            <span class="card-title">Globbing</span>
-                            <p>com.helix.globbing</p>
-
-                            <div class="platform-container">
-                                <img src="images/icon-ios.png" alt="iOS" height="24" width="24">
-                                <img src="images/icon-android.png" alt="Android" height="24" width="24">
-                                <img src="images/icon-website.png" alt="Web" height="24" width="24">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
 </main>
-
 <script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
 <script type="text/javascript" src="../../../web/js/app.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>

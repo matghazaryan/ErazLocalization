@@ -4,7 +4,7 @@ import kotlin.js.json
 fun createProject(name: String, alias: String): String {
     val json = createJson()
     json[name] = JSON.parse<Json>("{ \"name\" : \"$name\"," +
-                                        "\"alias\" : \"$alias\" }")
+            "\"alias\" : \"$alias\" }")
     dbRef.update(json, fun(error: Any) {
         if (error == null) {
             addTypes(name, "button", "label")
@@ -27,13 +27,15 @@ fun addTypes(name: String, vararg  names: String) {
 fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
     var projects = ArrayList<HashMap<String, String>>()
     dbRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
-                snapshot.forEach(fun (child: dynamic) {
-                    val element = hashMapOf<String, String>("name" to child.toJSON().name,
-                            "alias" to child.toJSON().alias)
-                    projects.add(element)
-                })
-                completion(projects.toTypedArray())
-            })
+        snapshot.forEach(fun (child: dynamic) {
+            val element = hashMapOf<String, String>(
+                    "name" to child.toJSON().name,
+                    "alias" to child.toJSON().alias
+            )
+            projects.add(element)
+        })
+        completion(projects.toTypedArray())
+    })
 }
 
 fun getProject(name: String, listener: (Json) -> Unit) {
