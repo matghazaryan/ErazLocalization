@@ -1,16 +1,20 @@
 import kotlin.js.Json
+import kotlin.js.Promise
 import kotlin.js.json
 
-fun createProject(name: String, alias: String): String {
+fun createProject(name: String, alias: String, languages: Array<Pair<String, String>>): String {
     val json = createJson()
     json[name] = JSON.parse<Json>("{ \"name\" : \"$name\"," +
             "\"alias\" : \"$alias\" }")
     dbRef.update(json, fun(error: Any) {
         if (error == null) {
-            addTypes(name, "button", "label")
-            addScreens(name, "login", "register")
+            addLanguages(name, languages).then {
+                alert(it)
+            }.catch {
+                alert(it.message)
+            }
         } else {
-            console.log(error)
+            alert("error")
         }
     })
     return "success"
@@ -45,50 +49,52 @@ fun getProject(name: String, listener: (Json) -> Unit) {
     })
 }
 
-fun addLanguages(name: String, languages: Array<Pair<String, String>>) {
+fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<String> {
     val childRef = dbRef.child("$name/languages")
-    childRef.once(Constants.FIREBASE.contentType.VALUE)
-            .then(fun(snapshot: dynamic) {
-                val snapshotArray = js("Object").values(snapshot.toJSON())
-                var needsToUpdate = false
-                for (language in languages) {
-                    val element = json("langCode" to language.first,
-                            "langName" to language.second)
-                    var contains = false
-                    snapshotArray.forEach(fun (elem: dynamic) {
-                        if (elem["langCode"] == element["langCode"]) {
-                            contains = true
+    return Promise { success, failure ->
+        childRef.once(Constants.FIREBASE.contentType.VALUE)
+                .then(fun(snapshot: dynamic) {
+                    val snapshotArray = js("Object").values(snapshot.toJSON())
+                    var needsToUpdate = false
+                    for (language in languages) {
+                        val element = json("langCode" to language.first,
+                                "langName" to language.second)
+                        var contains = false
+                        snapshotArray.forEach(fun(elem: dynamic) {
+                            if (elem["langCode"] == element["langCode"]) {
+                                contains = true
+                            }
+                        })
+                        if (!contains) {
+                            snapshotArray.push(element)
+                            needsToUpdate = true
                         }
-                    })
-                    if (!contains) {
-                        snapshotArray.push(element)
-                        needsToUpdate = true
                     }
-                }
-                if (needsToUpdate) {
-                    childRef.set(snapshotArray, fun(error: Any?) {
-                        if (error == null) {
-                            console.log("success")
-                        } else {
-                            console.log(error)
-                        }
-                    })
-                }
-            })
-            .catch(fun (error: dynamic) {
-                var snapshotArray = json()
-                for (language in languages) {
-                    snapshotArray[languages.indexOf(language).toString()] = json("langCode" to language.first,
-                            "langName" to language.second)
-                }
-                childRef.set(snapshotArray, fun(error: Any?) {
-                    if (error == null) {
-                        console.log("success")
-                    } else {
-                        console.log(error)
+                    if (needsToUpdate) {
+                        childRef.set(snapshotArray, fun(error: Any?) {
+                            if (error == null) {
+                                success("success")
+                            } else {
+                                failure(Throwable("error"))
+                            }
+                        })
                     }
                 })
-            })
+                .catch(fun(error: dynamic) {
+                    var snapshotArray = json()
+                    for (language in languages) {
+                        snapshotArray[languages.indexOf(language).toString()] = json("langCode" to language.first,
+                                "langName" to language.second)
+                    }
+                    childRef.set(snapshotArray, fun(error: Any?) {
+                        if (error == null) {
+                            success("success")
+                        } else {
+                            failure(Throwable("error"))
+                        }
+                    })
+                }) as Unit
+    }
 
 }
 

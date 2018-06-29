@@ -48,7 +48,7 @@ interface YandexHelper {
             req.onloadend = {
                 val response = JSON.parse<dynamic>(req.responseText)
                 if (response["code"] == "200") {
-                    detectedLang = response["lang"] as String
+                    detectedLang = response["lang"].toString()
                 }
             }
             req.send()
@@ -56,8 +56,13 @@ interface YandexHelper {
             return detectedLang
         }
 
+        private val supportedLanguages = hashMapOf<String, String>()
+
         fun supportedLanguages(ui: String = "en"): Promise<HashMap<String, String>> {
             return Promise { success, reject ->
+                if (supportedLanguages.isNotEmpty()) {
+                    success(supportedLanguages)
+                }
                 val url = URL(Constants.YANDEX.LANGUAGES_URL)
                 val searchParams = URLSearchParams()
                 searchParams.append("key", Constants.YANDEX.KEY)
@@ -68,12 +73,11 @@ interface YandexHelper {
                 req.onloadend = {
                     val response = JSON.parse<dynamic>(req.responseText)
                     if (response["code"] != null) {
-                        reject(Throwable(response["message"] as String))
+                        reject(Throwable(response["message"].toString()))
                     }
-                    val supportedLanguages = hashMapOf<String, String>()
                     val langs = response["langs"]
                     Object().keys(langs).forEach(fun(element: dynamic) {
-                        supportedLanguages[element as String] = langs[element] as String
+                        supportedLanguages[element.toString()] = langs[element].toString()
                     })
                     success(supportedLanguages)
                 }
