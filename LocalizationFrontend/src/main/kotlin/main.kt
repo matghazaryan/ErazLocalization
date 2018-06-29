@@ -3,6 +3,8 @@ import org.w3c.dom.events.Event
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.js.Json
+import kotlin.js.Promise
+import kotlin.js.json
 
 
 
@@ -15,7 +17,6 @@ var firebase: dynamic = js("firebase")
 var dbRef = firebase.database().ref().child("projects")
 
 fun main(args: Array<String>) {
-
     if (window.location.href.contains("index.html", false)) {
 
         window.onload = {
@@ -140,7 +141,7 @@ fun getRows(json: Json): String {
 
     var screens = arrayListOf<String>()
     val screensJson = json["screens"] as Json
-    js("Object").values(screensJson).forEach(fun (screen: String) {
+    js("Object").values(screensJson).forEach(fun(screen: String) {
         screens.add(screen)
     })
 
@@ -151,18 +152,18 @@ fun getRows(json: Json): String {
         if (screenLocalization != null) {
 
 
-            js("Object").values(screenLocalization).forEach(fun (localization: dynamic) {
+            js("Object").values(screenLocalization).forEach(fun(localization: dynamic) {
                 index++
                 val key = localization["key"] as String
 
-                str +=  "<tr>" +
+                str += "<tr>" +
                         "<td>${index}</td>" +
                         "<td>${screen}</td>" +
                         "<td>${key}</td>"
 
                 var values = arrayListOf<String>()
                 val valuesJson = localization["values"] as Json
-                js("Object").values(valuesJson).forEach(fun (value: dynamic) {
+                js("Object").values(valuesJson).forEach(fun(value: dynamic) {
                     val languageKey = value["lang_key"] as String
                     val languageValue = value["lang_value"] as String
                     str += "<td>${languageValue}</td>"
@@ -179,3 +180,19 @@ fun getRows(json: Json): String {
     return str
 }
 
+
+/// Helpers
+
+@Deprecated("As we use Yandex translate, so we need to support same languages like Yandex, use YandexHelper.supportedLanguages() instead", ReplaceWith("YandexHelper.supportedLanguages()"), DeprecationLevel.WARNING)
+fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
+    val json = js("langs")
+    val map = hashMapOf<String, String>()
+    js("Object").keys(json).forEach(fun (key: String) {
+        map[key] = json[key] as String
+    })
+    callBack(map)
+}
+
+external fun alert(message: Any?): Unit
+external fun encodeURIComponent(uri: String): String
+external fun encodeURI(uri: String): String
