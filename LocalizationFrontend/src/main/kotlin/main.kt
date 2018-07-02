@@ -1,14 +1,13 @@
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
+import org.w3c.files.Blob
+import org.w3c.files.File
+import org.w3c.files.FilePropertyBag
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
-
-
-
-external fun require(module:String): dynamic
 
 // Բայց սոռտ է, մարդավարի ES5/ES6 ով կգրես, require('firebase/app') կամ import firebase from 'firebase'
 // չի աշխատի, տողի վրա կգրես, կաշխատի 😂
@@ -77,7 +76,9 @@ fun main(args: Array<String>) {
             val collectionElement = document.getElementById("collection-header")
 
             getProject(targetProjectAlias) {
-
+                val localizations = it["localization"].asDynamic()
+                val langs = it["languages"].asDynamic()
+                saveiOS(localizations, langs)
                 val projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
@@ -140,8 +141,6 @@ fun main(args: Array<String>) {
         }
     }
 }
-
-
 
 fun getColumNames(languages: ArrayList<String>): String {
     var str =  "<th>N</th>" + "<th>Screen</th>" +  "<th>Key</th>"
@@ -215,4 +214,6 @@ fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
 external fun alert(message: Any?): Unit
 external fun encodeURIComponent(uri: String): String
 external fun encodeURI(uri: String): String
+// function below is for save iOS format files zip
+external fun saveiOS(localization: dynamic, languages: dynamic): Unit
 
