@@ -69,6 +69,10 @@ fun main(args: Array<String>) {
     } else if (window.location.href.contains("project.html")) {
         val targetProjectAlias = document.location?.href?.substringAfterLast("=", "=")
 
+//        document.addEventListener("DOMContentLoaded", fun(event: Event) {
+//            js("M.Modal.init(document.querySelectorAll(\".modal\"), {});")
+//        })
+
         if (targetProjectAlias != null) {
             val collectionElement = document.getElementById("collection-header")
 
@@ -87,21 +91,37 @@ fun main(args: Array<String>) {
 
                     var innerHtml =
                             "<div class=\"header-container\">" +
-                            "<h5>${projectName}</h5>" +
-                            "<h6>${projectAlias}</h6>" +
-                            "</div>"
+                                    "<div class=\"header-container-base\">" +
+                                    "<div>" +
+                                    "<h5>${projectName}</h5>" +
+                                    "<h6>${projectAlias}</h6>" +
+                                    "</div>" +
+                                    "<!-- Modal Trigger -->\n" +
+                                    "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n" +
+                                    "<!-- Modal Structure -->\n" +
+                                    "<div id=\"modal1\" class=\"modal modal-fixed-footer\">\n" +
+                                    "<div class=\"modal-content\">\n" +
+                                    "<h4>Modal Header</h4>\n" +
+                                    "<p>A bunch of text</p>\n" +
+                                    "</div>\n" +
+                                    "<div class=\"modal-footer\">\n" +
+                                    "<a href=\"#!\" class=\"modal-close waves-effect waves-green btn-flat\">Agree</a>\n" +
+                                    "</div>\n" +
+                                    "</div>" +
+                                    "<div>" +
+                                    "</div>"
 
                     val tableData =
                             "<table class=\"highlight centered responsive-table\">" +
-                            "<thead>" +
-                            "<tr>" +
-                            getColumNames(languages) +
-                            "</tr>" +
-                            "</thead>" +
-                            "<tbody>" +
-                            getRows(it) +
-                            "</tbody>" +
-                            "</table>"
+                                    "<thead>" +
+                                    "<tr>" +
+                                    getColumNames(languages) +
+                                    "</tr>" +
+                                    "</thead>" +
+                                    "<tbody>" +
+                                    getRows(it) +
+                                    "</tbody>" +
+                                    "</table>"
 
                     innerHtml += tableData
                     collectionElement.innerHTML = innerHtml
@@ -109,9 +129,13 @@ fun main(args: Array<String>) {
 
 
 
-                val elementsByClassName = document.getElementsByClassName("editor")
 
-//                js("document.getElementById(\"editor\").editable();")
+
+
+//                val floatButtonElement = document.getElementById("float-button")
+//                floatButtonElement?.addEventListener("click", fun(event: Event) {
+//                    console.log("floatButtonElement")
+//                })
             }
         }
     }
@@ -158,7 +182,7 @@ fun getRows(json: Json): String {
                 js("Object").values(valuesJson).forEach(fun(value: dynamic) {
                     val languageKey = value["lang_key"] as String
                     val languageValue = value["lang_value"] as String
-                    str += "<td><a href=\"#\" class=\"editor\" data-type=\"text\" data-pk=\"1\" data-url=\"/post\" data-title=\"Enter Value\">${languageValue}</a></td>"
+                    str += "<td>${languageValue}</td>"
                 })
 
                 str += "</tr>"
@@ -191,17 +215,4 @@ fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
 external fun alert(message: Any?): Unit
 external fun encodeURIComponent(uri: String): String
 external fun encodeURI(uri: String): String
-
-
-external class M {
-
-    companion object {
-        val DropDown: DropDown
-    }
-}
-
-
-external class DropDown {
-    fun init(elements: NodeList, options: String)
-}
 
