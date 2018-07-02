@@ -91,3 +91,7 @@ table {
     align-items: center;
     margin-top: 70px;
 }
+
+.header-container {
+    margin-left: 20px;
+}
