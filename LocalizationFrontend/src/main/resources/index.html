@@ -7,45 +7,34 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Localization</title>
+
 </head>
 <body>
 <!-- always keep those lines after <body> tag, from google documentation -->
 <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
 
-<script>
-    console.log("ok")
-    // Initialize Firebase
-    var config = {
-        apiKey: "AIzaSyC2_Mm4_s3YPDEtNiUpZa87B2KDA62onAk",
-        authDomain: "localization-1be56.firebaseapp.com",
-        databaseURL: "https://localization-1be56.firebaseio.com",
-        projectId: "localization-1be56",
-        storageBucket: "localization-1be56.appspot.com",
-        messagingSenderId: "358571947665"
-    };
-    firebase.initializeApp(config);
-</script>
-<!-- till here -->
-<!--<div style="display:block">-->
-    <!--<label for="name_id">Enter project name:</label>-->
-    <!--<input id="name_id" name="name" placeholder="name"/>-->
-
-    <!--<label for="alias_id">Enter project name:</label>-->
-    <!--<input id="alias_id" name="alias" placeholder="Alias"/>-->
-<!--</div>-->
-<!--<button id="push_id" type="button" style="display:block">Push</button>-->
 
 <header>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyC2_Mm4_s3YPDEtNiUpZa87B2KDA62onAk",
+            authDomain: "localization-1be56.firebaseapp.com",
+            databaseURL: "https://localization-1be56.firebaseio.com",
+            projectId: "localization-1be56",
+            storageBucket: "localization-1be56.appspot.com",
+            messagingSenderId: "358571947665"
+        };
+        firebase.initializeApp(config);
+    </script>
+
     <nav class="top-nav">
         <div class="container">
             <h1 class="header">Localization</h1>
         </div>
     </nav>
-
-
 </header>
-
 <main>
     <div class="container">
         <div class="collection with-header" id="collection-header" >

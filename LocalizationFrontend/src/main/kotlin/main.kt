@@ -87,23 +87,9 @@ fun main(args: Array<String>) {
                 if (collectionElement != null) {
 
                     var innerHtml =
-                            "<div class=\"collection-header\">" +
+                            "<div class=\"header-container\">" +
                             "<h5>${projectName}</h5>" +
                             "<h6>${projectAlias}</h6>" +
-                                    "<dic>" +
-                                    "  <!-- Dropdown Trigger -->\n" +
-                                    "  <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Drop Me!</a>\n" +
-                                    "\n" +
-                                    "  <!-- Dropdown Structure -->\n" +
-                                    "  <ul id='dropdown1' class='dropdown-content'>\n" +
-                                    "    <li><a href=\"#!\">one</a></li>\n" +
-                                    "    <li><a href=\"#!\">two</a></li>\n" +
-                                    "    <li class=\"divider\" tabindex=\"-1\"></li>\n" +
-                                    "    <li><a href=\"#!\">three</a></li>\n" +
-                                    "    <li><a href=\"#!\"><i class=\"material-icons\">view_module</i>four</a></li>\n" +
-                                    "    <li><a href=\"#!\"><i class=\"material-icons\">cloud</i>five</a></li>\n" +
-                                    "  </ul>" +
-                                    "</div>" +
                             "</div>"
 
                     val tableData =
@@ -121,6 +107,12 @@ fun main(args: Array<String>) {
                     innerHtml += tableData
                     collectionElement.innerHTML = innerHtml
                 }
+
+
+
+                val elementsByClassName = document.getElementsByClassName("editor")
+
+//                js("document.getElementById(\"editor\").editable();")
             }
         }
     }
@@ -165,7 +157,7 @@ fun getRows(json: Json): String {
                 js("Object").values(valuesJson).forEach(fun(value: dynamic) {
                     val languageKey = value["lang_key"] as String
                     val languageValue = value["lang_value"] as String
-                    str += "<td>${languageValue}</td>"
+                    str += "<td><a href=\"#\" class=\"editor\" data-type=\"text\" data-pk=\"1\" data-url=\"/post\" data-title=\"Enter Value\">${languageValue}</a></td>"
                 })
 
                 str += "</tr>"
@@ -178,6 +170,9 @@ fun getRows(json: Json): String {
 
     return str
 }
+
+//M.Dropdown.init(elems, options);
+
 
 
 /// Helpers
@@ -195,7 +190,19 @@ fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
 external fun alert(message: Any?): Unit
 external fun encodeURIComponent(uri: String): String
 external fun encodeURI(uri: String): String
-external fun require(name: String): dynamic = definedExternally
-external fun saveAs(data: Blob, filename: String?, disableAutoBOM: Boolean?): dynamic = definedExternally
-external fun saveAs(data: File, filename: String?, disableAutoBOM: Boolean?): dynamic = definedExternally
+// function below is for save iOS format files zip
 external fun saveiOS(localization: dynamic, languages: dynamic): Unit
+
+
+external class M {
+
+    companion object {
+        val DropDown: DropDown
+    }
+}
+
+
+external class DropDown {
+    fun init(elements: NodeList, options: String)
+}
+
