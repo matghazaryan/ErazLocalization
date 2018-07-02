@@ -3,9 +3,14 @@ buildscript {
 
     repositories {
         mavenCentral()
+        jcenter()
+        maven {
+            url "https://dl.bintray.com/kotlin/kotlin-eap"
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-frontend-plugin:0.0.30"
     }
 }
 
@@ -16,6 +21,7 @@ plugins {
 group 'Localization'
 version '1.0-SNAPSHOT'
 
+apply plugin: 'org.jetbrains.kotlin.frontend'
 apply plugin: 'kotlin2js'
 
 sourceCompatibility = 1.8
@@ -37,7 +43,7 @@ compileKotlin2Js.kotlinOptions.sourceMap = true
 compileKotlin2Js.kotlinOptions.main = "call"
 compileKotlin2Js.kotlinOptions.suppressWarnings = true
 compileKotlin2Js.kotlinOptions.verbose = true
-compileKotlin2Js.kotlinOptions.moduleKind = "amd"
+//compileKotlin2Js.kotlinOptions.moduleKind = "amd"
 
 kotlinFrontend {
     downloadNodeJsVersion = "latest"
@@ -45,8 +51,8 @@ kotlinFrontend {
     npm {
 //        dependency("kotlin", "1.1.0")
         dependency "style-loader"
-
-        devDependency("karma")
+        dependency "jszip"
+        devDependency "karma"
     }
 
     webpackBundle {
