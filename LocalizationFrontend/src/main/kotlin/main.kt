@@ -213,4 +213,5 @@ external fun encodeURIComponent(uri: String): String
 external fun encodeURI(uri: String): String
 // function below is for save iOS format files zip
 external fun saveiOS(project: Json): Unit
-
+external fun saveAndroid(project: Json): Unit
+external fun saveWeb(project: Json): Unit
