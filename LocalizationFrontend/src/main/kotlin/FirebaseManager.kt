@@ -1,6 +1,7 @@
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
+import kotlin.math.cos
 
 fun createProject(name: String, alias: String, languages: Array<Pair<String, String>>): String {
     val json = createJson()
@@ -80,7 +81,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                         })
                     }
                 })
-                .catch(fun(error: dynamic) {
+                .catch(fun(_: dynamic) {
                     var snapshotArray = json()
                     for (language in languages) {
                         snapshotArray[languages.indexOf(language).toString()] = json("langCode" to language.first,
@@ -96,6 +97,17 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                 }) as Unit
     }
 
+}
+
+fun filterScreens(projectName: String, name: String, callBack: (Json) -> Unit) {
+    val project = dbRef.child("$projectName/localization/$name")
+    project.once(Constants.FIREBASE.contentType.VALUE)
+            .then(fun (snapshot: dynamic) {
+                callBack(snapshot.toJSON() as Json)
+            })
+            .catch(fun (error: Throwable) {
+                alert(error.message)
+            })
 }
 
 
