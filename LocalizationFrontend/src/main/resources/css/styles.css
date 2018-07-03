@@ -95,3 +95,8 @@ table {
 .header-container {
     margin-left: 20px;
 }
+
+
+.header-container-base {
+    /*align-items: flex-start;*/
+}
