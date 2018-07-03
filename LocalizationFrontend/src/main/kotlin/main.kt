@@ -72,9 +72,6 @@ fun main(args: Array<String>) {
             val collectionElement = document.getElementById("collection-header")
 
             getProject(targetProjectAlias) {
-                val localizations = it["localization"].asDynamic()
-                val langs = it["languages"].asDynamic()
-                saveiOS(localizations, langs)
                 val projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
@@ -191,7 +188,7 @@ external fun alert(message: Any?): Unit
 external fun encodeURIComponent(uri: String): String
 external fun encodeURI(uri: String): String
 // function below is for save iOS format files zip
-external fun saveiOS(localization: dynamic, languages: dynamic): Unit
+external fun saveiOS(project: Json): Unit
 
 
 external class M {
