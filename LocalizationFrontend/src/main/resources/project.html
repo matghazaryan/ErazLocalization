@@ -24,14 +24,6 @@
     };
     firebase.initializeApp(config);
 </script>
-
-<!--X-Editable-->
-<!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">-->
-<!--<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>-->
-<!--<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>-->
-<!--<link href="https://cdnjs.cloudflare.com/ajax/libs/x-editable/1.4.6/bootstrap-editable/css/bootstrap-editable.css" rel="stylesheet"/>-->
-<!--<script src="bootstrap-editable/js/bootstrap-editable.js"></script>-->
-
 <header>
     <nav class="top-nav">
         <div class="container">
@@ -41,6 +33,7 @@
 </header>
 <main>
     <div class="container">
+
         <div class="collection with-header" id="collection-header">
             <div class="row collection-item" id="row">
                 <div class="col s12 m6">
@@ -60,12 +53,11 @@
         </div>
 
 
-        <!-- Modal Structure -->
         <div id="modal1" class="modal modal-fixed-footer">
             <div class="modal-content">
                 <h5>Add Localization</h5>
                 <div class="row">
-                    <form class="col s12", id="localization_form">
+                    <form class="col s12" id="localization_form">
                         <div class="col s12">
                             <div class="row">
                                 <div class="input-field col s4">
@@ -77,8 +69,29 @@
                                     <label for="type_autocomplete_input">Type</label>
                                 </div>
                                 <div class="input-field col s4">
-                                    <input id="localization_key" type="text" class="validate">
-                                    <label for="localization_key">Key</label>
+                                    <input id="localization_value" type="text" class="validate">
+                                    <label for="localization_value">Value</label>
+                                </div>
+                            </div>
+                            <div id="localization_input">
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input id="en" type="text" class="validate">
+                                        <label for="en">English</label>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input id="ru" type="text" class="validate">
+                                        <label for="ru">Russian</label>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="input-field col s12">
+                                        <input id="hy" type="text" class="validate">
+                                        <label for="hy">Armenian</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -86,59 +99,10 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Add</a>
             </div>
         </div>
-
-
-        <!--<div class="row">-->
-            <!--<form class="col s12">-->
-                <!--<div class="row">-->
-                    <!--<div class="input-field col s6">-->
-                        <!--<input placeholder="Placeholder" id="first_name" type="text" class="validate">-->
-                        <!--<label for="first_name">First Name</label>-->
-                    <!--</div>-->
-                    <!--<div class="input-field col s6">-->
-                        <!--<input id="last_name" type="text" class="validate">-->
-                        <!--<label for="last_name">Last Name</label>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<div class="row">-->
-                    <!--<div class="input-field col s12">-->
-                        <!--<input disabled value="I am not editable" id="disabled" type="text" class="validate">-->
-                        <!--<label for="disabled">Disabled</label>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<div class="row">-->
-                    <!--<div class="input-field col s12">-->
-                        <!--<input id="password" type="password" class="validate">-->
-                        <!--<label for="password">Password</label>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<div class="row">-->
-                    <!--<div class="input-field col s12">-->
-                        <!--<input id="email" type="email" class="validate">-->
-                        <!--<label for="email">Email</label>-->
-                    <!--</div>-->
-                <!--</div>-->
-                <!--<div class="row">-->
-                    <!--<div class="col s12">-->
-                        <!--This is an inline input field:-->
-                        <!--<div class="input-field inline">-->
-                            <!--<input id="email_inline" type="email" class="validate">-->
-                            <!--<label for="email_inline">Email</label>-->
-                            <!--<span class="helper-text" data-error="wrong" data-success="right">Helper text</span>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                <!--</div>-->
-            <!--</form>-->
-        <!--</div>-->
-
-
-
-
-
-
     </div>
 </main>
 <script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>

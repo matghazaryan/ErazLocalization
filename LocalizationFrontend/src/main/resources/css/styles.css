@@ -108,7 +108,7 @@ table {
 }
 
 .modal.modal-fixed-footer {
-    height: 50%;
+    height: 70%;
     padding: 0;
 }
 
@@ -123,4 +123,8 @@ table {
     display: flex;
     margin-right: 15px;
     justify-content: flex-end;
+}
+
+.input-field.col.s12 {
+    height: 60px;
 }

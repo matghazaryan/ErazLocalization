@@ -103,7 +103,10 @@ fun main(args: Array<String>) {
             var projectJson: Json
 
             getProject(targetProjectAlias) {
+
                 projectJson = it
+                addLanguageInputsToPopup(it)
+
                 val projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
@@ -112,6 +115,23 @@ fun main(args: Array<String>) {
                 js("Object").values(languagesJson).forEach(fun (language: dynamic) {
                     languages.add(language["langName"] as String)
                 })
+
+
+                var screens = arrayOf<String>()
+                val screensJson = it["screens"] as Json
+                js("Object").values(screensJson).forEach(fun(screen: String) {
+                    screens[screens.count()] = screen
+                })
+
+                initScreenAutocompleteList(screens)
+
+                var types = arrayOf<String>()
+                val typesJson = it["types"] as Json
+                js("Object").values(typesJson).forEach(fun(type: String) {
+                    types[types.count()] = type
+                })
+
+                initTypeAutocompleteList(types)
 
                 if (collectionElement != null) {
 
@@ -137,17 +157,6 @@ fun main(args: Array<String>) {
                                     "</div>" +
                                 "</div>" +
                             "</div>"
-
-
-
-//                    <li class="version"><a href="#" data-target="version-dropdown" class="dropdown-trigger">
-//                    1.0.0-rc.2
-//                    <svg class="caret" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></a><ul id="version-dropdown" class="dropdown-content" tabindex="0" style="">
-//                    <li tabindex="0"><a>1.0.0-rc.2</a></li>
-//                    <li tabindex="0"><a href="http://archives.materializecss.com/0.100.2/">0.100.2</a></li>
-//                    </ul>
-//
-//                    </li>
 
                     val tableData =
                             "<table class=\"highlight centered responsive-table\">" +
@@ -176,7 +185,6 @@ fun main(args: Array<String>) {
 
                     js("var elems = document.querySelectorAll('.dropdown-trigger');\n" +
                             "    var instances = M.Dropdown.init(elems, {});")
-
 
 
                     val exportiOSElement = document.getElementById("export_ios")
@@ -211,6 +219,31 @@ fun getColumNames(languages: ArrayList<String>): String {
     return str
 }
 
+fun addLanguageInputsToPopup(json: Json): Unit {
+    val element = document.getElementById("localization_input")
+    if (element != null) {
+        var innerHtml = ""
+
+
+        val languagesJson = json["languages"] as Json
+        js("Object").values(languagesJson).forEach(fun (language: dynamic) {
+            var languageName = language["langName"] as String
+            var languageCode = language["langCode"] as String
+
+            innerHtml += "" +
+                    "<div class=\"row\">" +
+                    "   <div class=\"input-field col s12\">" +
+                    "   <input id=\"language_input\" data-key=\"${languageCode}\" type=\"text\" class=\"validate\">" +
+                    "   <label for=\"language_input\">${languageName}</label>" +
+                    "   </div>" +
+                    "</div>"
+
+        })
+
+        element.innerHTML = innerHtml
+    }
+}
+
 fun getRows(json: Json): String {
     var str = ""
     var index = 0
@@ -220,8 +253,6 @@ fun getRows(json: Json): String {
     js("Object").values(screensJson).forEach(fun(screen: String) {
         screens.add(screen)
     })
-
-    initScreenAutocompleteList(screens)
 
     val localization = json["localization"] as Json
     for (screen in screens) {
@@ -270,7 +301,8 @@ fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
 
 external fun alert(message: Any?): Unit
 external fun encodeURIComponent(uri: String): String
-external fun initScreenAutocompleteList(screenNames: ArrayList<String>): Unit
+external fun initScreenAutocompleteList(screenNames: Array<String>): Unit
+external fun initTypeAutocompleteList(types: Array<String>): Unit
 external fun encodeURI(uri: String): String
 external fun saveiOS(project: Json): Unit
 external fun saveAndroid(project: Json): Unit
