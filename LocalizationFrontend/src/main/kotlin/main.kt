@@ -5,6 +5,7 @@ import org.w3c.files.File
 import org.w3c.files.FilePropertyBag
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.dom.createElement
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
@@ -21,36 +22,50 @@ fun main(args: Array<String>) {
         window.onload = {
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
-
-                // Add project card
-                var innerHtml: String = "<div class=\"col s12 m3\">\n" +
-                        "                    <div class=\"card\" data-alias=\"new-project\">\n" +
-                        "                        <div class=\"card-container\">\n" +
-                        "                            <img src=\"images/icon-plus.png\" alt=\"Add Project\" height=\"36\" width=\"36\">\n" +
-                        "                            <p>Add Project</p>\n" +
-                        "                        </div>\n" +
-                        "                    </div>\n" +
-                        "                </div>"
-
                 // Projects
                 it.forEach {
-                    innerHtml += "<div class=\"col s12 m3\">\n" +
-                            "         <div class=\"card\" data-alias=\"${it["alias"] as String}\">\n" +
-                            "             <div class=\"card-content black-text\">\n" +
-                            "                 <span class=\"card-title\">${it["name"] as String}</span>\n" +
-                            "                 <p>${it["alias"] as String}</p>\n" +
-                            "                 <div class=\"platform-container\">\n" +
-                            "                 <img src=\"images/icon-ios.png\" alt=\"iOS\" height=\"24\" width=\"24\">\n" +
-                            "                 <img src=\"images/icon-android.png\" alt=\"Android\" height=\"24\" width=\"24\">\n" +
-                            "                 <img src=\"images/icon-website.png\" alt=\"Web\" height=\"24\" width=\"24\">\n" +
-                            "             </div>\n" +
-                            "         </div>\n" +
-                            "      </div>\n" +
-                            "    </div>"
+                    var projectCard = document.getElementById(it["alias"].toString())
+                    if (projectCard == null) {
+                        projectCard = document.createElement("div") as HTMLDivElement
+                        projectCard.className = "col s12 m3"
+                        projectCard.id = it["alias"].toString()
+                        val card = document.createElement("div") as HTMLDivElement
+                        card.className = "card"
+                        card.setAttribute("data-alias", it["alias"].toString())
+                        val cardContext = document.createElement("div") as HTMLDivElement
+                        cardContext.className = "card-content black-text"
+                        val cardTitle = document.createElement("span") as HTMLSpanElement
+                        cardTitle.className = "card-title"
+                        cardTitle.innerText = it["name"].toString()
+                        val alias = document.createElement("p") as HTMLParagraphElement
+                        alias.innerText = it["alias"].toString()
+                        val platformContainer = document.createElement("div") as HTMLDivElement
+                        platformContainer.className = "platform-container"
+                        val iosImage = document.createElement("img") as HTMLImageElement
+                        iosImage.src = "images/icon-ios.png"
+                        iosImage.alt = "iOS"
+                        iosImage.width = 24
+                        iosImage.height = 24
+                        val androidImage = document.createElement("img") as HTMLImageElement
+                        androidImage.src = "images/icon-android.png"
+                        androidImage.alt = "Android"
+                        androidImage.width = 24
+                        androidImage.height = 24
+                        val webImage = document.createElement("img") as HTMLImageElement
+                        webImage.src = "images/icon-website.png"
+                        webImage.alt = "Web"
+                        webImage.width = 24
+                        webImage.height = 24
+                        platformContainer.append(iosImage, androidImage, webImage)
+                        cardContext.append(cardTitle, alias, platformContainer)
+                        card.appendChild(cardContext)
+                        projectCard.appendChild(card)
+                        divProjects.appendChild(projectCard)
+                    }
                 }
 
-                // Show projects
-                divProjects.innerHTML = innerHtml
+                // remove loading
+                divProjects.removeChild(document.getElementById("loadind-indicator") as HTMLDivElement)
 
                 // Adding click event listener
                 for (node: Node in divProjects.childNodes.asList()) {
@@ -67,11 +82,6 @@ fun main(args: Array<String>) {
         }
     } else if (window.location.href.contains("project.html")) {
         val targetProjectAlias = document.location?.href?.substringAfterLast("=", "=")
-
-//        document.addEventListener("DOMContentLoaded", fun(event: Event) {
-//            js("M.Modal.init(document.querySelectorAll(\".modal\"), {});")
-//        })
-
         if (targetProjectAlias != null) {
             val collectionElement = document.getElementById("collection-header")
 
@@ -124,16 +134,6 @@ fun main(args: Array<String>) {
                     innerHtml += tableData
                     collectionElement.innerHTML = innerHtml
                 }
-
-
-
-
-
-
-//                val floatButtonElement = document.getElementById("float-button")
-//                floatButtonElement?.addEventListener("click", fun(event: Event) {
-//                    console.log("floatButtonElement")
-//                })
             }
         }
     }
@@ -191,11 +191,7 @@ fun getRows(json: Json): String {
 
     return str
 }
-
-//M.Dropdown.init(elems, options);
-
-
-
+git status
 /// Helpers
 
 @Deprecated("As we use Yandex translate, so we need to support same languages like Yandex, use YandexHelper.supportedLanguages() instead", ReplaceWith("YandexHelper.supportedLanguages()"), DeprecationLevel.WARNING)
