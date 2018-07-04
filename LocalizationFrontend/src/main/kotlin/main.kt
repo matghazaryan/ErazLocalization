@@ -58,7 +58,6 @@ fun main(args: Array<String>) {
                     }
                 })
             }
-
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
                 while (divProjects.childElementCount > 1) {
@@ -134,11 +133,14 @@ fun main(args: Array<String>) {
     } else if (window.location.href.contains("project.html")) {
         val url = URL(document.location!!.href)
         val targetProjectAlias = url.searchParams.get("alias")
+
         if (targetProjectAlias != null) {
             val collectionElement = document.getElementById("collection-header")
 
-            getProject(targetProjectAlias) {
+            var projectJson: Json
 
+            getProject(targetProjectAlias) {
+                projectJson = it
                 val projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
@@ -154,13 +156,35 @@ fun main(args: Array<String>) {
                             "<div class=\"header-container\">" +
                                 "<div class=\"header-container-base\">" +
                                     "<div>" +
-                                    "<h5>${projectName}</h5>" +
-                                     "<h6>${projectAlias}</h6>" +
+                                        "<h5>${projectName}</h5>" +
+                                        "<h6>${projectAlias}</h6>" +
                                      "</div>" +
-                                    "<!-- Modal Trigger -->\n" +
-                                    "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n" +
+                                    "<div class=\"export_button\">" +
+                                        " <!-- Dropdown Trigger -->\n" +
+                                    "  <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Export</a>\n" +
+                                    "\n" +
+                                    "  <!-- Dropdown Structure -->\n" +
+                                    "  <ul id='dropdown1' class='dropdown-content'>\n" +
+                                    "    <li><a href=\"#!\" id=\"export_ios\">iOS</a></li>\n" +
+                                    "    <li class=\"divider\" tabindex=\"-1\"></li>\n" +
+                                    "    <li><a href=\"#!\" id=\"export_android\">Andriod</a></li>\n" +
+                                    "    <li class=\"divider\" tabindex=\"-1\"></li>\n" +
+                                    "    <li><a href=\"#!\" id=\"export_web\">Web</a></li>\n" +
+                                    "  </ul>" +
+                                    "</div>" +
                                 "</div>" +
                             "</div>"
+
+
+
+//                    <li class="version"><a href="#" data-target="version-dropdown" class="dropdown-trigger">
+//                    1.0.0-rc.2
+//                    <svg class="caret" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"></path><path d="M0 0h24v24H0z" fill="none"></path></svg></a><ul id="version-dropdown" class="dropdown-content" tabindex="0" style="">
+//                    <li tabindex="0"><a>1.0.0-rc.2</a></li>
+//                    <li tabindex="0"><a href="http://archives.materializecss.com/0.100.2/">0.100.2</a></li>
+//                    </ul>
+//
+//                    </li>
 
                     val tableData =
                             "<table class=\"highlight centered responsive-table\">" +
@@ -175,12 +199,41 @@ fun main(args: Array<String>) {
                                     "</table>"
 
                     innerHtml += tableData
+
+                    innerHtml += "<div class=\"float_button\">" +
+                                    "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n" +
+                                    "</div>"
+
                     collectionElement.innerHTML = innerHtml
 
                     js("var elems = document.querySelectorAll('.modal');\n" +
                             "    console.log(elems);" +
                             "    var instances = M.Modal.init(elems, {});\n"
                     )
+
+                    js("var elems = document.querySelectorAll('.dropdown-trigger');\n" +
+                            "    var instances = M.Dropdown.init(elems, {});")
+
+
+
+                    val exportiOSElement = document.getElementById("export_ios")
+                    val exportAndroidElement = document.getElementById("export_android")
+                    val exportWebElement = document.getElementById("export_web")
+
+                    exportiOSElement?.addEventListener("click", fun(event: Event) {
+                        saveiOS(projectJson)
+                        console.log("saveiOS")
+                    })
+
+                    exportAndroidElement?.addEventListener("click", fun(event: Event) {
+                        saveAndroid(projectJson)
+                        console.log("saveAndroid")
+                    })
+
+                    exportWebElement?.addEventListener("click", fun(event: Event) {
+                        saveWeb(projectJson)
+                        console.log("saveWeb")
+                    })
                 }
             }
         }
@@ -192,7 +245,7 @@ fun getColumNames(languages: ArrayList<String>): String {
     for (language in languages) {
         str += "<th>${language}</th>"
     }
-    return  str
+    return str
 }
 
 fun getRows(json: Json): String {
