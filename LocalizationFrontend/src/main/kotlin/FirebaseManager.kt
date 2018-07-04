@@ -12,8 +12,6 @@ fun createProject(name: String, alias: String, languages: Array<Pair<String, Str
         if (error == null) {
             addLanguages(name, languages).then {
                 alert(it)
-            }.catch {
-                alert(it.message)
             }
         } else {
             alert("error")
@@ -35,12 +33,11 @@ fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
     dbRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
         snapshot.forEach(fun (child: dynamic) {
             val element = hashMapOf<String, String>(
-                    "name" to child.toJSON().name,
-                    "alias" to child.toJSON().alias
+                    "name" to child.toJSON()["name"].toString(),
+                    "alias" to child.toJSON()["alias"].toString()
             )
             projects.add(element)
         })
-        console.log(projects.toTypedArray())
         completion(projects.toTypedArray())
     })
 }
@@ -96,7 +93,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                             failure(Throwable("error"))
                         }
                     })
-                }) as Unit
+                }) as? Unit
     }
 
 }
