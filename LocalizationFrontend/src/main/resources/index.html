@@ -46,7 +46,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col s12 m6" id="loadind-indicator">
+                <div class="col s12 m6" id="indicator">
                     <div class="preloader-wrapper active">
                         <div class="spinner-layer spinner-red-only">
                             <div class="circle-clipper left">
@@ -83,24 +83,17 @@
                     </div>
 
                     <div class="row">
-                        <div class="input-field col s12">
-                        <select multiple>
-                            <option value="" disabled selected>Supported Languages</option>
-                            <option value="1">Option 1</option>
-                            <option value="2">Option 2</option>
-                            <option value="3">Option 3</option>
-                        </select>
-                        <label>Supporting Languages</label>
+                        <div class="input-field col s12" id="languages-combobox">
+                            <label>Supported Languages</label>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Add</a>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="add_project">Add</a>
         </div>
     </div>
-
 </main>
 <script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
 <script type="text/javascript" src="../../../web/js/app.js"></script>

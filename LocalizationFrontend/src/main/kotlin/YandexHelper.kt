@@ -52,7 +52,6 @@ interface YandexHelper {
                 }
             }
             req.send()
-            console.log(detectedLang)
             return detectedLang
         }
 

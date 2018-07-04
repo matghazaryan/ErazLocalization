@@ -6,6 +6,7 @@ import org.w3c.files.File
 import org.w3c.files.FilePropertyBag
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.dom.clear
 import kotlin.dom.createElement
 import kotlin.js.Json
 import kotlin.js.Promise
@@ -21,18 +22,51 @@ fun main(args: Array<String>) {
     if (window.location.href.contains("index.html", false)) {
 
         window.onload = {
+            val elems = document.querySelectorAll(".modal")
+            val params = json("onCloseEnd" to fun () {
+                (document.getElementById("project_name") as HTMLInputElement).value = ""
+                (document.getElementById("project_alias") as HTMLInputElement).value = ""
+            })
+            js("M").Modal.init(elems, params)
 
-            js("var elems = document.querySelectorAll('.modal');\n" +
-                    "    console.log(elems);" +
-                    "    var instances = M.Modal.init(elems, {});\n"
-            )
-
-            js("var elems = document.querySelectorAll('select');" +
-                     "var instances = M.FormSelect.init(elems, {});"
-            )
+            YandexHelper.supportedLanguages().then {
+                val select = document.createElement("select") as HTMLSelectElement
+                select.multiple = true
+                var index = it.keys.indexOf("en")
+                it.forEach {
+                    val option = document.createElement("option") as HTMLOptionElement
+                    option.value = it.key
+                    option.text = it.value
+                    select.appendChild(option)
+                }
+                select.options.selectedIndex = index
+                val div = document.getElementById("languages-combobox") as HTMLDivElement
+                div.insertBefore(select, div.firstChild)
+                val elems = document.querySelectorAll("select")
+                val instance = js("M").FormSelect.init(elems, {})
+                val addButton = document.getElementById("add_project")
+                addButton?.addEventListener("click", {
+                    val projectName = (document.getElementById("project_name") as HTMLInputElement).value
+                    val projectAlias = (document.getElementById("project_alias") as HTMLInputElement).value
+                    val languages = arrayListOf<Pair<String, String>>()
+                    for (i in 0..(select.selectedOptions.length - 1)) {
+                        val option = select.selectedOptions[i] as HTMLOptionElement
+                        languages.add(option.value to option.text)
+                    }
+                    if (projectAlias.isNotEmpty() && projectName.isNotEmpty() && languages.isNotEmpty()) {
+                        createProject(projectName, projectAlias, languages.toTypedArray())
+                    }
+                })
+            }
 
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
+                while (divProjects.childElementCount > 1) {
+                    val lastChild = divProjects.lastChild
+                    if (lastChild != null) {
+                        divProjects.removeChild(lastChild)
+                    }
+                }
                 // Projects
                 it.forEach {
                     var projectCard = document.getElementById(it["alias"].toString())
@@ -73,10 +107,14 @@ fun main(args: Array<String>) {
                         projectCard.appendChild(card)
                         divProjects.appendChild(projectCard)
                     }
+
+                    // remove loading
+                    val loading = document.getElementById("indicator")
+                    if (loading != null) {
+                        divProjects.removeChild(loading as HTMLElement)
+                    }
                 }
 
-                // remove loading
-                divProjects.removeChild(document.getElementById("loadind-indicator") as HTMLDivElement)
 
                 // Adding click event listener
                 for (node: Node in divProjects.childNodes.asList()) {
