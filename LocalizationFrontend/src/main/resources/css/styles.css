@@ -96,7 +96,31 @@ table {
     margin-left: 20px;
 }
 
-
 .header-container-base {
-    /*display: inline-block;*/
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+}
+
+
+#localization_form {
+    margin-top: 10px;
+}
+
+.modal.modal-fixed-footer {
+    height: 50%;
+    padding: 0;
+}
+
+.modal {
+    width: 35%;
+}
+.export_button {
+    margin-right: 15px;
+}
+
+.float_button {
+    display: flex;
+    margin-right: 15px;
+    justify-content: flex-end;
 }
