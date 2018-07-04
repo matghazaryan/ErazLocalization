@@ -1,5 +1,6 @@
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
+import org.w3c.dom.url.URL
 import org.w3c.files.Blob
 import org.w3c.files.File
 import org.w3c.files.FilePropertyBag
@@ -59,18 +60,21 @@ fun main(args: Array<String>) {
                         val cardElement = element.firstElementChild
                         if (cardElement != null) {
                             val projectAlias = cardElement.getAttribute("data-alias")
-                            window.location.href = "./project.html?alias=${projectAlias}"
+
+
+                            if (projectAlias == "new-project") {
+
+                            } else {
+                                window.location.href = "./project.html?alias=${projectAlias}"
+                            }
                         }
                     })
                 }
             }
         }
     } else if (window.location.href.contains("project.html")) {
-        val targetProjectAlias = document.location?.href?.substringAfterLast("=", "=")
-
-//        document.addEventListener("DOMContentLoaded", fun(event: Event) {
-//            js("M.Modal.init(document.querySelectorAll(\".modal\"), {});")
-//        })
+        val url = URL(document.location!!.href)
+        val targetProjectAlias = url.searchParams.get("alias")
 
         if (targetProjectAlias != null) {
             val collectionElement = document.getElementById("collection-header")
@@ -78,7 +82,7 @@ fun main(args: Array<String>) {
             getProject(targetProjectAlias) {
                 val localizations = it["localization"].asDynamic()
                 val langs = it["languages"].asDynamic()
-                saveiOS(localizations, langs)
+//                saveiOS(localizations, langs)
                 val projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
@@ -92,25 +96,15 @@ fun main(args: Array<String>) {
 
                     var innerHtml =
                             "<div class=\"header-container\">" +
-                                    "<div class=\"header-container-base\">" +
+                                "<div class=\"header-container-base\">" +
                                     "<div>" +
                                     "<h5>${projectName}</h5>" +
-                                    "<h6>${projectAlias}</h6>" +
-                                    "</div>" +
+                                     "<h6>${projectAlias}</h6>" +
+                                     "</div>" +
                                     "<!-- Modal Trigger -->\n" +
                                     "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n" +
-                                    "<!-- Modal Structure -->\n" +
-                                    "<div id=\"modal1\" class=\"modal modal-fixed-footer\">\n" +
-                                    "<div class=\"modal-content\">\n" +
-                                    "<h4>Modal Header</h4>\n" +
-                                    "<p>A bunch of text</p>\n" +
-                                    "</div>\n" +
-                                    "<div class=\"modal-footer\">\n" +
-                                    "<a href=\"#!\" class=\"modal-close waves-effect waves-green btn-flat\">Agree</a>\n" +
-                                    "</div>\n" +
-                                    "</div>" +
-                                    "<div>" +
-                                    "</div>"
+                                "</div>" +
+                            "</div>"
 
                     val tableData =
                             "<table class=\"highlight centered responsive-table\">" +
@@ -126,17 +120,13 @@ fun main(args: Array<String>) {
 
                     innerHtml += tableData
                     collectionElement.innerHTML = innerHtml
+
+
+                    js("var elems = document.querySelectorAll('.modal');\n" +
+                            "    console.log(elems);" +
+                            "    var instances = M.Modal.init(elems, {});\n"
+                    )
                 }
-
-
-
-
-
-
-//                val floatButtonElement = document.getElementById("float-button")
-//                floatButtonElement?.addEventListener("click", fun(event: Event) {
-//                    console.log("floatButtonElement")
-//                })
             }
         }
     }
@@ -159,6 +149,8 @@ fun getRows(json: Json): String {
     js("Object").values(screensJson).forEach(fun(screen: String) {
         screens.add(screen)
     })
+
+    initScreenAutocompleteList(screens)
 
     val localization = json["localization"] as Json
     for (screen in screens) {
@@ -216,4 +208,5 @@ external fun encodeURIComponent(uri: String): String
 external fun encodeURI(uri: String): String
 // function below is for save iOS format files zip
 external fun saveiOS(localization: dynamic, languages: dynamic): Unit
+external fun initScreenAutocompleteList(screenNames: ArrayList<String>): Unit
 

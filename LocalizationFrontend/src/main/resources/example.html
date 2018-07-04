@@ -25,7 +25,6 @@
     firebase.initializeApp(config);
 </script>
 
-<!--X-Editable-->
 <!--<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">-->
 <!--<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>-->
 <!--<script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>-->
@@ -39,59 +38,30 @@
         </div>
     </nav>
 </header>
+<!--<a href="#" class="editor" data-type="text" data-pk="1" data-url="/post" data-title="Enter username">superuser</a>-->
+
 <main>
     <div class="container">
-        <div class="collection with-header" id="collection-header">
-            <div class="row collection-item" id="row">
-                <div class="col s12 m6">
-                    <div class="preloader-wrapper active">
-                        <div class="spinner-layer spinner-red-only">
-                            <div class="circle-clipper left">
-                                <div class="circle"></div>
-                            </div><div class="gap-patch">
-                            <div class="circle"></div>
-                        </div><div class="circle-clipper right">
-                            <div class="circle"></div>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        <!-- Modal Trigger -->
+        <a class="waves-effect waves-light btn modal-trigger" href="#modal1">Modal</a>
 
         <!-- Modal Structure -->
-        <div id="modal1" class="modal modal-fixed-footer">
+        <div id="modal1" class="modal">
             <div class="modal-content">
-                <h5>Add Localization</h5>
-                <div class="row">
-                    <div class="col s12">
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="text" id="screen-autocomplete-input" class="autocomplete">
-                                <label for="screen-autocomplete-input">Screen Name</label>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="input-field col s12">
-                                <input type="text" id="screen-autocomplete-input-1" class="autocomplete">
-                                <label for="screen-autocomplete-input">Key</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h4>Modal Header</h4>
+                <p>A bunch of text</p>
             </div>
             <div class="modal-footer">
-                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Add</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
             </div>
         </div>
 
+        <button data-target="modal1" class="btn modal-trigger">Modal</button>
     </div>
 </main>
 <script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
 <script type="text/javascript" src="../../../web/js/app.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
-<script type="text/javascript" src="js/project.js"></script>
 <!-- attach scripts below to be able download zip -->
 <script src="Dependencies/test.js"></script>
 <script type="text/javascript" src="Dependencies/FileSaver.js"></script>

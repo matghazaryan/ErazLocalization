@@ -38,6 +38,7 @@ fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
             )
             projects.add(element)
         })
+        console.log(projects.toTypedArray())
         completion(projects.toTypedArray())
     })
 }
