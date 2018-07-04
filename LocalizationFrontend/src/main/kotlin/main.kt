@@ -21,6 +21,16 @@ fun main(args: Array<String>) {
     if (window.location.href.contains("index.html", false)) {
 
         window.onload = {
+
+            js("var elems = document.querySelectorAll('.modal');\n" +
+                    "    console.log(elems);" +
+                    "    var instances = M.Modal.init(elems, {});\n"
+            )
+
+            js("var elems = document.querySelectorAll('select');" +
+                     "var instances = M.FormSelect.init(elems, {});"
+            )
+
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
                 // Projects
@@ -75,11 +85,7 @@ fun main(args: Array<String>) {
                         val cardElement = element.firstElementChild
                         if (cardElement != null) {
                             val projectAlias = cardElement.getAttribute("data-alias")
-
-
-                            if (projectAlias == "new-project") {
-
-                            } else {
+                            if (projectAlias != "new-project") {
                                 window.location.href = "./project.html?alias=${projectAlias}"
                             }
                         }
