@@ -115,23 +115,86 @@ fun filterScreens(projectName: String, name: String, callBack: (Json) -> Unit) {
 /// Helpers
 
 fun addStrings(child: String, name: String, vararg names: String) {
-    var arrayString = "["
+    var array = js("[]")
     for (name in names) {
-        arrayString += "\"$name\"" + ','
+        array.push(name)
     }
-    arrayString = arrayString.removeSuffix(",") + "]"
-    val json = createJson()
-    json[child] = JSON.parse<Json>(arrayString)
-    val childRef = dbRef.child(name)
-    childRef.update(json, fun(error: Any) {
-        if (error == null) {
-            console.log("success")
-        } else {
-            console.log(error)
-        }
+    val childRef = dbRef.child("$name/$child")
+    childRef.once(Constants.FIREBASE.contentType.VALUE)
+            .then(fun (snapshot: dynamic) {
+                var json = snapshot.toJSON()
+                if (json == null) {
+                    json = createJson()
+                }
+                val values = Object().values(json)
+                for (name in names) {
+                    json[values.length + names.indexOf(name)] = name
+                }
+                childRef.update(json, fun(error: Any) {
+                    if (error == null) {
+                        console.log("success")
+                    } else {
+                        console.log(error)
+                    }
+                })
+            })
+}
+
+fun removeValueFromChildArray(value: String, child: String, name: String) {
+    val childRef = dbRef.child("$name/$child")
+    childRef.once(Constants.FIREBASE.contentType.VALUE)
+            .then(fun (snapshot: dynamic) {
+                val  json = snapshot.toJSON()
+                val values = Object().values(json)
+                val index = values.indexOf(value).toString()
+                if (index != undefined) {
+                    for (i in index.toInt()..((values.length - 1) as Int)) {
+                        json[i.toString()] = json[(i + 1).toString()]
+                    }
+                    json[(values.length - 1).toString()] = null
+                    console.log(JSON.stringify(json, null, 4))
+                    childRef.update(json, fun(error: Any?) {
+                        if (error == null) {
+                            console.log("$value of $child deleted")
+                        } else {
+                            console.log(error)
+                        }
+                    })
+                }
+            })
+}
+
+fun removeLocalizaton(name: String, screen: String, key: String, lang_value: String) {
+    val childRef = dbRef.child("$name/localization/$screen")
+    var indexOfScreen = ""
+    childRef.once(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
+        val values = Object().values(snapshot.toJSON())
+        val localization = values.find(fun (el: dynamic, idx: dynamic): Boolean {
+            indexOfScreen = Object().keys(snapshot.toJSON())[idx.toString().toInt()].toString()
+            return el["key"] == key
+        })
+        val localizationValues = Object().values(localization["values"])
+        var index = ""
+        val  itemToDelete = localizationValues.find(fun (el: dynamic, idx: dynamic): Boolean {
+            console.log(idx)
+            index = idx.toString()
+            return el["lang_value"] == lang_value
+        })
+        console.log(indexOfScreen, index)
+        itemToDelete["lang_value"] = ""
+        childRef.child("$indexOfScreen/values/$index").set(itemToDelete, fun (error: Any?) {
+            if (error == null) {
+                console.log(JSON.stringify(itemToDelete, null, 4))
+            } else {
+                console.log(error)
+            }
+        })
+
     })
 }
 
 fun createJson(): dynamic {
     return js("{}")
 }
+
+external fun delete(p: dynamic): Boolean = definedExternally
