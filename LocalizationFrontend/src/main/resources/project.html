@@ -56,6 +56,13 @@
         <div id="modal1" class="modal modal-fixed-footer">
             <div class="modal-content">
                 <h5>Add Localization</h5>
+                <div class="switch">
+                    <label>
+                        Mobile
+                        <input type="checkbox">
+                        <span class="lever"></span>
+                    </label>
+                </div>
                 <div class="row">
                     <form class="col s12" id="localization_form">
                         <div class="col s12">
@@ -76,11 +83,17 @@
 
 
                             <div class="row">
-                                <div class="input-field col s12">
+
+                                <div class="input-field col s10">
                                     <i class="material-icons prefix copy" id="content_copy">content_copy</i>
                                     <input disabled id="disabled" value="" type="text" class="validate">
                                     <label for="disabled">Generated Key:</label>
                                 </div>
+
+                                <div class="input-field col s2">
+                                    <a href="#!" class="waves-effect waves-green btn red darken-2" id="generate_values">Generate</a>
+                                </div>
+
                             </div>
 
                             <div id="localization_input">
@@ -99,7 +112,7 @@
             </div>
             <div class="modal-footer">
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
-                <a href="#!" class="waves-effect waves-green btn-flat" id="add_project">Add</a>
+                <a href="#!" class="waves-effect waves-green btn-flat" id="add_project">Save</a>
             </div>
         </div>
     </div>

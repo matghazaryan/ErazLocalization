@@ -277,7 +277,6 @@ fun main(args: Array<String>) {
                                     console.log("delete")
                                 })
 
-
                                 val editElem = document.createElement("i") as HTMLElement
                                 editElem.addClass("small")
                                 editElem.addClass("material-icons")
@@ -304,17 +303,23 @@ fun main(args: Array<String>) {
                                     typeInput.value = key.substringAfter("_").substringBeforeLast("_")
                                     generatedKeyInput.value = key
 
-                                    console.log(trElement.children)
-
                                     for (i in 3..trElement.childElementCount-2) {
-                                        console.log(i)
                                         val languageElement = languageElements[i-3] as HTMLInputElement
                                         languageElement.value = trElement.children[i]?.innerHTML as String
+                                        languageElement.focus()
                                     }
 
                                     val modal = document.getElementById("modal1")
                                     var instance = js("M").Modal.getInstance(modal)
-                                    instance.open();
+                                    instance.open()
+
+                                    screenNameInput.focus()
+                                    typeInput.focus()
+                                    keyInput.focus()
+
+                                    for (elem in languageElements.asList()) {
+                                        (elem as HTMLInputElement).focus()
+                                    }
                                 })
 
                                 tdOptions.append(deleteElem, editElem)
