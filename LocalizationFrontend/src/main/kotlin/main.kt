@@ -4,9 +4,6 @@ import org.w3c.dom.url.URL
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.dom.addClass
-import kotlin.dom.clear
-import kotlin.dom.createElement
-import kotlin.dom.removeClass
 import kotlin.js.Json
 import kotlin.js.json
 
@@ -157,7 +154,6 @@ fun main(args: Array<String>) {
 
                 val screens = arrayOf<String>()
                 val screensJson = it["screens"] as Json
-                console.log("hasav stex" , screensJson)
                 js("Object").values(screensJson).forEach(fun(screen: String) {
                     screens[screens.count()] = screen
                 })
@@ -236,30 +232,38 @@ fun main(args: Array<String>) {
                     val localization = it["localization"] as Json
                     Object().values(it["screens"]).forEach(fun(screen: String) {
                         val screenLocalization = localization[screen] as? Json
-                        if (screenLocalization != null) {
-                            Object().values(screenLocalization).forEach(fun(localization: dynamic) {
-                                index++
-                                val key = localization["key"] as String
-                                val tr = document.createElement("tr") as HTMLTableRowElement
-                                val tableIndex = document.createElement("td")
-                                tableIndex.addClass("table_index")
-                                tableIndex.innerHTML = "$index"
-                                val tableScreen = document.createElement("td")
-                                tableScreen.addClass("table_screen")
-                                tableScreen.innerHTML = screen
-                                val tableKey = document.createElement("td")
-                                tableKey.innerHTML = key
-                                tr.append(tableIndex, tableScreen, tableKey)
-                                Object().values(localization["values"]).forEach(fun(value: dynamic) {
-                                    val languageValue = value["lang_value"] as String
-                                    val td = document.createElement("td")
-                                    td.innerHTML = languageValue
-                                    tr.appendChild(td)
-                                })
-                                tableBody.appendChild(tr)
-                            })
+                        tableRowDataFromScreen(screen, screenLocalization).forEach {
+                            console.log(it.toString())
+                            index++
+                            val tr = tableRowElementFromTableRowData(it, index)
+                            tableBody.appendChild(tr)
                         }
                     })
+//                    Object().values(it["screens"]).forEach(fun(screen: String) {
+//                        val screenLocalization = localization[screen] as? Json
+//                        if (screenLocalization != null) {
+//                            Object().values(screenLocalization).forEach(fun(localization: dynamic) {
+//                                val key = localization["key"] as String
+//                                val tr = document.createElement("tr") as HTMLTableRowElement
+//                                val tableIndex = document.createElement("td")
+//                                tableIndex.addClass("table_index")
+//                                tableIndex.innerHTML = "$index"
+//                                val tableScreen = document.createElement("td")
+//                                tableScreen.addClass("table_screen")
+//                                tableScreen.innerHTML = screen
+//                                val tableKey = document.createElement("td")
+//                                tableKey.innerHTML = key
+//                                tr.append(tableIndex, tableScreen, tableKey)
+//                                Object().values(localization["values"]).forEach(fun(value: dynamic) {
+//                                    val languageValue = value["lang_value"] as String
+//                                    val td = document.createElement("td")
+//                                    td.innerHTML = languageValue
+//                                    tr.appendChild(td)
+//                                })
+//
+//                            })
+//                        }
+//                    })
 
                     table.append(tableHead, tableBody)
 
@@ -430,6 +434,41 @@ private fun setupDropDown(json: Json) {
     })
 }
 
+fun tableRowDataFromScreen(name: String, screen: Json?): Array<TableRowData> {
+    val array = arrayListOf<TableRowData>()
+    if (screen != null) {
+        Object().values(screen).forEach(fun(localization: dynamic) {
+            val key = localization["key"] as String
+            val values = hashMapOf<String, String>()
+            Object().values(localization["values"]).forEach(fun(value: dynamic) {
+                values.put(value["lang_key"].toString(), value["lang_value"].toString())
+            })
+            array.add(TableRowData(name, key, values))
+        })
+    }
+    return array.toTypedArray()
+}
+
+fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTMLTableRowElement {
+    val tr = document.createElement("tr") as HTMLTableRowElement
+    val tableIndex = document.createElement("td")
+    tableIndex.addClass("table_index")
+    tableIndex.innerHTML = "$index"
+    val tableScreen = document.createElement("td")
+    tableScreen.addClass("table_screen")
+    tableScreen.innerHTML = tableRowData.screen
+    val tableKey = document.createElement("td")
+    tableKey.innerHTML = tableRowData.key
+    tr.append(tableIndex, tableScreen, tableKey)
+    tableRowData.values.forEach {
+        val languageValue = it.value
+        val td = document.createElement("td")
+        td.innerHTML = languageValue
+        tr.appendChild(td)
+    }
+    return tr
+}
+
 fun addLanguageInputsToPopup(json: Json) {
     val element = document.getElementById("localization_input")
     if (element != null) {
@@ -486,7 +525,20 @@ fun addLanguageInputsToPopup(json: Json) {
     }
 }
 
+class TableRowData {
+    var screen: String = ""
+    var key: String = ""
+    var values = hashMapOf<String, String>()
+    constructor(screen: String, key: String, values: HashMap<String, String>) {
+        this.screen = screen
+        this.key = key
+        this.values = values
+    }
 
+    override fun toString(): String {
+        return "screen = $screen, key = $key, values = ${values.toString()}"
+    }
+}
 
 /// Helpers
 

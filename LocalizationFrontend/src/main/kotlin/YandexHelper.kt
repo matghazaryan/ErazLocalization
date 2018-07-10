@@ -1,7 +1,6 @@
 import org.w3c.dom.url.URL
 import org.w3c.dom.url.URLSearchParams
 import org.w3c.xhr.XMLHttpRequest
-import kotlin.js.Json
 import kotlin.js.Promise
 
 interface YandexHelper {
@@ -36,7 +35,7 @@ interface YandexHelper {
             }
         }
 
-        fun detectLanguage(text: String): String {
+        private fun detectLanguage(text: String): String {
             val url = URL(Constants.YANDEX.DETECTION_URL)
             val searchParams = URLSearchParams()
             searchParams.append("key", Constants.YANDEX.KEY)
@@ -86,4 +85,4 @@ interface YandexHelper {
     }
 }
 
-inline fun Object(): dynamic { return js("Object")}
+fun Object(): dynamic { return js("Object")}
