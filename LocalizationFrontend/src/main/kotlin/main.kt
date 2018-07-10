@@ -240,7 +240,6 @@ fun main(args: Array<String>) {
                     Object().values(it["screens"]).forEach(fun(screen: String) {
                         val screenLocalization = localization[screen] as? Json
                         tableRowDataFromScreen(screen, screenLocalization).forEach {
-                            console.log(it.toString())
                             index++
                             val tr = tableRowElementFromTableRowData(it, index)
                             tableBody.appendChild(tr)
@@ -461,7 +460,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     deleteElem.innerText = "delete"
 
     deleteElem.addEventListener("click", fun(event:Event) {
-        remove
+        removeRow(projectName, tableRowData.screen, tableRowData.key)
         console.log("delete")
     })
 
