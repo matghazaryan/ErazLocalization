@@ -4,6 +4,8 @@ import kotlin.js.Promise
 import kotlin.js.json
 import kotlin.math.cos
 
+var keys = arrayListOf<String>()
+
 fun createProject(name: String, alias: String, languages: Array<Pair<String, String>>): String {
     val json = createJson()
     json[name] = JSON.parse<Json>("{ \"name\" : \"$name\"," +
@@ -45,6 +47,11 @@ fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
 fun getProject(name: String, listener: (Json) -> Unit) {
     val childRef = dbRef.child(name)
     childRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
+        Object().values(snapshot.toJSON()["localization"]).forEach(fun (value: dynamic) {
+            Object().values(value).forEach(fun (valu: Json) {
+                keys.add(valu["key"].toString())
+            })
+        })
         listener(snapshot.toJSON() as Json)
     })
 }
@@ -176,11 +183,9 @@ fun removeLocalizaton(name: String, screen: String, key: String, lang_value: Str
         val localizationValues = Object().values(localization["values"])
         var index = ""
         val  itemToDelete = localizationValues.find(fun (el: dynamic, idx: dynamic): Boolean {
-            console.log(idx)
             index = idx.toString()
             return el["lang_value"] == lang_value
         })
-        console.log(indexOfScreen, index)
         itemToDelete["lang_value"] = ""
         childRef.child("$indexOfScreen/values/$index").set(itemToDelete, fun (error: Any?) {
             if (error == null) {
@@ -191,6 +196,36 @@ fun removeLocalizaton(name: String, screen: String, key: String, lang_value: Str
         })
 
     })
+}
+
+fun editLocalization(name: String, screen: String, key: String, languageCode: String, value: String) {
+    val childRef = dbRef.child("$name/localization/$screen")
+    childRef.once(Constants.FIREBASE.contentType.VALUE)
+            .then(fun (snapshot: dynamic) {
+                var indexOfScreen = ""
+                val values = Object().values(snapshot.toJSON())
+                val localization = values.find(fun (el: dynamic, idx: dynamic): Boolean {
+                    indexOfScreen = Object().keys(snapshot.toJSON())[idx.toString().toInt()].toString()
+                    return el["key"] == key
+                })
+                val localizationValues = Object().values(localization["values"])
+                var index = ""
+                localizationValues.find(fun (el: dynamic, idx: dynamic): Boolean {
+                    index = idx.toString()
+                    return el["lang_key"] == languageCode
+                })
+                childRef.child("$indexOfScreen/values/$index/lang_value").set(value, fun (error: Any?) {
+                    if (error == null) {
+                        console.log(value)
+                    } else {
+                        console.log(error)
+                    }
+                })
+            })
+}
+
+fun existKeyInProject(key: String): Boolean {
+    return keys.contains(key)
 }
 
 fun createJson(): dynamic {
