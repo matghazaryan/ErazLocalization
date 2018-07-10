@@ -4,9 +4,6 @@ import org.w3c.dom.url.URL
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.dom.addClass
-import kotlin.dom.clear
-import kotlin.dom.createElement
-import kotlin.dom.removeClass
 import kotlin.js.Json
 import kotlin.js.json
 
@@ -157,7 +154,6 @@ fun main(args: Array<String>) {
 
                 val screens = arrayOf<String>()
                 val screensJson = it["screens"] as Json
-                console.log("hasav stex" , screensJson)
                 js("Object").values(screensJson).forEach(fun(screen: String) {
                     screens[screens.count()] = screen
                 })
@@ -243,91 +239,10 @@ fun main(args: Array<String>) {
                     val localization = it["localization"] as Json
                     Object().values(it["screens"]).forEach(fun(screen: String) {
                         val screenLocalization = localization[screen] as? Json
-                        if (screenLocalization != null) {
-                            Object().values(screenLocalization).forEach(fun(localization: dynamic) {
-                                index++
-                                val key = localization["key"] as String
-                                val tr = document.createElement("tr") as HTMLTableRowElement
-                                val tableIndex = document.createElement("td")
-                                tableIndex.addClass("table_index")
-                                tableIndex.innerHTML = "$index"
-                                val tableScreen = document.createElement("td")
-                                tableScreen.addClass("table_screen")
-                                tableScreen.innerHTML = screen
-                                val tableKey = document.createElement("td")
-                                tableKey.innerHTML = key
-                                tr.append(tableIndex, tableScreen, tableKey)
-                                Object().values(localization["values"]).forEach(fun(value: dynamic) {
-                                    val languageValue = value["lang_value"] as String
-                                    val td = document.createElement("td")
-                                    td.innerHTML = languageValue
-                                    tr.appendChild(td)
-                                })
-
-                                val tdOptions = document.createElement("td")
-                                tdOptions.addClass("head_options")
-
-                                val deleteElem = document.createElement("i") as HTMLElement
-                                deleteElem.addClass("small")
-                                deleteElem.addClass("material-icons")
-                                deleteElem.addClass("action")
-                                deleteElem.innerText = "delete"
-
-                                deleteElem.addEventListener("click", fun(event:Event) {
-                                    console.log("delete")
-                                })
-
-                                val editElem = document.createElement("i") as HTMLElement
-                                editElem.addClass("small")
-                                editElem.addClass("material-icons")
-                                editElem.addClass("action")
-                                editElem.innerText = "edit"
-
-                                editElem.addEventListener("click", fun(event:Event) {
-                                    console.log("edit")
-
-                                    val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
-                                    val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
-                                    val keyInput = document.getElementById("localization_value") as HTMLInputElement
-                                    val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
-                                    val commentInput = document.getElementById("localization_comment") as HTMLInputElement
-                                    val languageElements = document.querySelectorAll("input.validate.language_input")
-
-                                    val trElement = editElem.parentElement?.parentElement as HTMLTableRowElement
-
-                                    val screenName = trElement.children[1]?.innerHTML as String
-                                    val key = trElement.children[2]?.innerHTML as String
-
-                                    screenNameInput.value = screenName
-                                    keyInput.value = key.substringAfterLast("_")
-                                    typeInput.value = key.substringAfter("_").substringBeforeLast("_")
-                                    generatedKeyInput.value = key
-
-                                    for (i in 3..trElement.childElementCount-2) {
-                                        val languageElement = languageElements[i-3] as HTMLInputElement
-                                        languageElement.value = trElement.children[i]?.innerHTML as String
-                                        languageElement.focus()
-                                    }
-
-                                    val modal = document.getElementById("modal1")
-                                    var instance = js("M").Modal.getInstance(modal)
-                                    instance.open()
-
-                                    screenNameInput.focus()
-                                    typeInput.focus()
-                                    keyInput.focus()
-
-                                    for (elem in languageElements.asList()) {
-                                        (elem as HTMLInputElement).focus()
-                                    }
-                                })
-
-                                tdOptions.append(deleteElem, editElem)
-
-                                tr.appendChild(tdOptions)
-                                tableBody.appendChild(tr)
-
-                            })
+                        tableRowDataFromScreen(screen, screenLocalization).forEach {
+                            index++
+                            val tr = tableRowElementFromTableRowData(it, index)
+                            tableBody.appendChild(tr)
                         }
                     })
 
@@ -503,6 +418,98 @@ private fun setupDropDown(json: Json) {
     })
 }
 
+fun tableRowDataFromScreen(name: String, screen: Json?): Array<TableRowData> {
+    val array = arrayListOf<TableRowData>()
+    if (screen != null) {
+        Object().values(screen).forEach(fun(localization: dynamic) {
+            val key = localization["key"] as String
+            val values = hashMapOf<String, String>()
+            Object().values(localization["values"]).forEach(fun(value: dynamic) {
+                values.put(value["lang_key"].toString(), value["lang_value"].toString())
+            })
+            array.add(TableRowData(name, key, values))
+        })
+    }
+    return array.toTypedArray()
+}
+
+fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTMLTableRowElement {
+    val tr = document.createElement("tr") as HTMLTableRowElement
+    val tableIndex = document.createElement("td")
+    tableIndex.addClass("table_index")
+    tableIndex.innerHTML = "$index"
+    val tableScreen = document.createElement("td")
+    tableScreen.addClass("table_screen")
+    tableScreen.innerHTML = tableRowData.screen
+    val tableKey = document.createElement("td")
+    tableKey.innerHTML = tableRowData.key
+    tr.append(tableIndex, tableScreen, tableKey)
+    tableRowData.values.forEach {
+        val languageValue = it.value
+        val td = document.createElement("td")
+        td.innerHTML = languageValue
+        tr.appendChild(td)
+    }
+    val tdOptions = document.createElement("td")
+    tdOptions.addClass("head_options")
+
+    val deleteElem = document.createElement("i") as HTMLElement
+    deleteElem.addClass("small")
+    deleteElem.addClass("material-icons")
+    deleteElem.addClass("action")
+    deleteElem.innerText = "delete"
+
+    deleteElem.addEventListener("click", fun(event:Event) {
+        removeRow(projectName, tableRowData.screen, tableRowData.key)
+        console.log("delete")
+    })
+
+
+    val editElem = document.createElement("i") as HTMLElement
+    editElem.addClass("small")
+    editElem.addClass("material-icons")
+    editElem.addClass("action")
+    editElem.innerText = "edit"
+
+    editElem.addEventListener("click", fun(event:Event) {
+        console.log("edit")
+
+        val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
+        val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
+        val keyInput = document.getElementById("localization_value") as HTMLInputElement
+        val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
+        val commentInput = document.getElementById("localization_comment") as HTMLInputElement
+        val languageElements = document.querySelectorAll("input.validate.language_input")
+
+        val trElement = editElem.parentElement?.parentElement as HTMLTableRowElement
+
+        val screenName = trElement.children[1]?.innerHTML as String
+        val key = trElement.children[2]?.innerHTML as String
+
+        screenNameInput.value = screenName
+        keyInput.value = key.substringAfterLast("_")
+        typeInput.value = key.substringAfter("_").substringBeforeLast("_")
+        generatedKeyInput.value = key
+
+        console.log(trElement.children)
+
+        for (i in 3..trElement.childElementCount-2) {
+            console.log(i)
+            val languageElement = languageElements[i-3] as HTMLInputElement
+            languageElement.value = trElement.children[i]?.innerHTML as String
+        }
+
+        val modal = document.getElementById("modal1")
+        var instance = js("M").Modal.getInstance(modal)
+        instance.open();
+    })
+
+    tdOptions.append(deleteElem, editElem)
+
+    tr.appendChild(tdOptions)
+    return tr
+}
+
 fun addLanguageInputsToPopup(json: Json) {
     val element = document.getElementById("localization_input")
     if (element != null) {
@@ -559,7 +566,20 @@ fun addLanguageInputsToPopup(json: Json) {
     }
 }
 
+class TableRowData {
+    var screen: String = ""
+    var key: String = ""
+    var values = hashMapOf<String, String>()
+    constructor(screen: String, key: String, values: HashMap<String, String>) {
+        this.screen = screen
+        this.key = key
+        this.values = values
+    }
 
+    override fun toString(): String {
+        return "screen = $screen, key = $key, values = ${values.toString()}"
+    }
+}
 
 /// Helpers
 

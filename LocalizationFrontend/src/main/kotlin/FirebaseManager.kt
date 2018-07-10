@@ -199,6 +199,31 @@ fun removeLocalizaton(name: String, screen: String, key: String, lang_value: Str
     })
 }
 
+fun removeRow(projectName: String, screen: String, key: String) {
+    val childRef = dbRef.child("$projectName/localization/$screen")
+    childRef.once(Constants.FIREBASE.contentType.VALUE)
+            .then(fun (snapshot: dynamic) {
+                val json = snapshot.toJSON()
+                val values = Object().values(json)
+                var index = ""
+                values.find(fun (el: dynamic, idx: dynamic): Boolean {
+                    index = idx.toString()
+                    return el.key == key
+                })
+                if (values.length > 1) {
+                    for (i in index.toInt()..((values.length - 1) as Int)) {
+                        json[i.toString()] = json[(i + 1).toString()]
+                    }
+                    json[(values.length - 1).toString()] = null
+                    childRef.update(json)
+                } else {
+                    json["0"] = null
+                    childRef.update(json)
+                    removeValueFromChildArray(screen, "screens", projectName)
+                }
+            })
+}
+
 fun editLocalization(name: String, screen: String, key: String, languageCode: String, value: String) {
     val childRef = dbRef.child("$name/localization/$screen")
     childRef.once(Constants.FIREBASE.contentType.VALUE)
