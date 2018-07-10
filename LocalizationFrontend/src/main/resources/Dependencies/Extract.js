@@ -1,13 +1,13 @@
 function saveiOS(project) {
-    var fileName = "Localizable.strings";
-    var lprojects = createCstomJson(project)
-    var zip = new JSZip();
-    for (var lprojectName in lprojects) {
-        var currentProj = zip.folder(lprojectName + ".lproj");
-        var fileText = '';
-        var lproject = lprojects[lprojectName];
+    const fileName = "Localizable.strings";
+    let lprojects = createCstomJson(project);
+    let zip = new JSZip();
+    for (let lprojectName in lprojects) {
+        let currentProj = zip.folder(lprojectName + ".lproj");
+        let fileText = '';
+        let lproject = lprojects[lprojectName];
         lproject.forEach(function (pair) {
-            for (var first in pair) {
+            for (let first in pair) {
                 fileText += '"' + first.toString() + '" = "' + pair[first].key.toString() + '";';
             }
             if (!pair[first].comment.toString().isEmpty) {
@@ -22,24 +22,33 @@ function saveiOS(project) {
     })
 }
 
+/*
+***** Structure ****
+* { `languageCode` : [{ `key` : `value`},
+*                     { `key` : `value`}...
+*                    ],
+*                    ....
+* }
+*/
+
 function createCstomJson(project) {
-    var localizations = project.localization;
-    var languages = project.languages;
-    var lprojectNames = [];
+    let localizations = project.localization;
+    let languages = project.languages;
+    let lprojectNames = [];
     Object.values(languages).forEach(function (value) {
         lprojectNames.push(value.langCode)
     });
-    var lprojects = {};
+    let lprojects = {};
     lprojectNames.forEach(function (projectName) {
-        var projects = [];
+        let projects = [];
         Object.values(localizations).forEach(function (localValue) {
-            var proj = {};
+            let proj = {};
             Object.values(localValue).forEach(function (value) {
-                var object = Object.values(value.values).find(function (value1) {
-                    return value1.lang_key == projectName;
+                let object = Object.values(value.values).find(function (value1) {
+                    return value1.lang_key === projectName;
                 });
                 proj[value.key] = {"key" : object.lang_value,
-                                   "comment" : object.lang_comment ? object.lang_comment : ''};
+                                   "comment": value.comment};
             });
             projects.push(proj);
         });
@@ -49,16 +58,16 @@ function createCstomJson(project) {
 }
 
 function saveAndroid(project) {
-    var projects = createCstomJson(project);
-    var zip = new JSZip();
-    for (var projectName in projects) {
-        var xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<resources>\n    ";
-        var currentproject = zip.folder("values-" + projectName);
-        var proj = projects[projectName];
+    let projects = createCstomJson(project);
+    let zip = new JSZip();
+    for (let projectName in projects) {
+        let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<resources>\n";
+        let currentproject = zip.folder("values-" + projectName);
+        let proj = projects[projectName];
         proj.forEach(function (pair) {
-            for (var first in pair) {
+            for (let first in pair) {
                 xml += "\t<string name=\"" + first.toString() + '\">' + pair[first].key.toString() + "</string>";
-                if (!pair[first].comment.toString().isEmpty) {
+                if (typeof pair[first].comment !== 'undefined') {
                     xml += "<!--" + pair[first].comment.toString() + "-->"
                 }
                 xml += "\n"
@@ -73,13 +82,13 @@ function saveAndroid(project) {
 }
 
 function saveWeb(project) {
-    var projects = createCstomJson(project);
-    var zip = new JSZip();
-    for (var projectName in projects) {
-        var currentproject = {};
-        var proj = projects[projectName];
+    let projects = createCstomJson(project);
+    let zip = new JSZip();
+    for (let projectName in projects) {
+        let currentproject = {};
+        let proj = projects[projectName];
         proj.forEach(function (pair) {
-            for (var first in pair) {
+            for (let first in pair) {
                 currentproject[first] = pair[first].key
             }
         });

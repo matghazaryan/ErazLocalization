@@ -1,8 +1,6 @@
-import org.w3c.dom.svg.SVGTransformList
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
-import kotlin.math.cos
 
 var keys = arrayListOf<String>()
 
@@ -10,7 +8,7 @@ fun createProject(name: String, alias: String, languages: Array<Pair<String, Str
     val json = createJson()
     json[name] = JSON.parse<Json>("{ \"name\" : \"$name\"," +
             "\"alias\" : \"$alias\" }")
-    dbRef.update(json, fun(error: Any) {
+    dbRef.update(json, fun(error: Any?) {
         if (error == null) {
             addLanguages(name, languages).then {
                 alert(it)
@@ -31,7 +29,7 @@ fun addTypes(name: String, vararg  names: String) {
 }
 
 fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
-    var projects = ArrayList<HashMap<String, String>>()
+    val projects = ArrayList<HashMap<String, String>>()
     dbRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
         snapshot.forEach(fun (child: dynamic) {
             val element = hashMapOf<String, String>(
@@ -47,11 +45,14 @@ fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
 fun getProject(name: String, listener: (Json) -> Unit) {
     val childRef = dbRef.child(name)
     childRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
-        Object().values(snapshot.toJSON()["localization"]).forEach(fun (value: dynamic) {
-            Object().values(value).forEach(fun (valu: Json) {
-                keys.add(valu["key"].toString())
+        val localizations = snapshot.toJSON()["localization"]
+        if (localizations != null) {
+            Object().values(localizations).forEach(fun(value: dynamic) {
+                Object().values(value).forEach(fun(valu: Json) {
+                    keys.add(valu["key"].toString())
+                })
             })
-        })
+        }
         listener(snapshot.toJSON() as Json)
     })
 }
@@ -88,7 +89,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                     }
                 })
                 .catch(fun(_: dynamic) {
-                    var snapshotArray = json()
+                    val snapshotArray = json()
                     for (language in languages) {
                         snapshotArray[languages.indexOf(language).toString()] = json("langCode" to language.first,
                                 "langName" to language.second)
@@ -122,9 +123,9 @@ fun filterScreens(projectName: String, name: String, callBack: (Json) -> Unit) {
 /// Helpers
 
 fun addStrings(child: String, name: String, vararg names: String) {
-    var array = js("[]")
-    for (name in names) {
-        array.push(name)
+    val array = js("[]")
+    for (_name in names) {
+        array.push(_name)
     }
     val childRef = dbRef.child("$name/$child")
     childRef.once(Constants.FIREBASE.contentType.VALUE)
@@ -134,10 +135,10 @@ fun addStrings(child: String, name: String, vararg names: String) {
                     json = createJson()
                 }
                 val values = Object().values(json)
-                for (name in names) {
-                    json[values.length + names.indexOf(name)] = name
+                for (_name in names) {
+                    json[values.length + names.indexOf(_name)] = name
                 }
-                childRef.update(json, fun(error: Any) {
+                childRef.update(json, fun(error: Any?) {
                     if (error == null) {
                         console.log("success")
                     } else {
