@@ -9,6 +9,7 @@ import kotlin.browser.window
 import kotlin.dom.addClass
 import kotlin.dom.clear
 import kotlin.dom.createElement
+import kotlin.dom.removeClass
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
@@ -137,6 +138,7 @@ fun main(args: Array<String>) {
 
         window.onload  = {
             setupModal()
+            setupCopyElement()
         }
 
         val url = URL(document.location!!.href)
@@ -149,6 +151,8 @@ fun main(args: Array<String>) {
 
             getProject(targetProjectAlias) {
                 addLanguageInputsToPopup(it)
+
+                console.log(it)
 
                 projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
@@ -238,24 +242,47 @@ private fun setupModal(): Unit {
     val keyInput = document.getElementById("localization_value") as HTMLInputElement
     val form = document.getElementById("localization_form") as HTMLFormElement
 
+    val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
+    val commentInput = document.getElementById("localization_comment") as HTMLInputElement
+
+
     val elems = document.querySelectorAll(".modal")
 
     val params = json("onCloseEnd" to fun () {
         screenNameInput.value = ""
         typeInput.value =  ""
         keyInput.value = ""
+        generatedKeyInput.value = " "
+        commentInput.value = ""
 
         form.reset()
     })
 
     js("M").Modal.init(elems, params)
 
+
+
+    // Event Listeners
+
+    screenNameInput.addEventListener("change", fun(event: Event) {
+        generateKey()
+    })
+
+    typeInput.addEventListener("change", fun(event: Event) {
+        generateKey()
+    })
+
+    keyInput.addEventListener("change", fun(event: Event) {
+        generateKey()
+    })
+
+
     val addProjectElem = document.getElementById("add_project")
     addProjectElem?.addEventListener("click", fun(event:Event) {
 
-        val screenName = screenNameInput.value
-        val type = typeInput.value
-        val key = keyInput.value
+        val screenName = screenNameInput.value.trim('_')
+        val type = typeInput.value.trim('_')
+        val key = keyInput.value.trim('_')
 
         form.reportValidity()
         val isValid = form.checkValidity()
@@ -289,6 +316,53 @@ private fun setupModal(): Unit {
 }
 
 
+private fun generateKey(): Unit {
+
+    val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
+    val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
+    val keyInput = document.getElementById("localization_value") as HTMLInputElement
+    val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
+
+    val screenName = screenNameInput.value.trim('_')
+    val type = typeInput.value.trim('_')
+    val key = keyInput.value.trim('_')
+
+    var generatedKey = screenName
+
+    if (!type.isEmpty()) {
+        generatedKey += "_" + type
+    }
+
+    if (!key.isEmpty()) {
+        generatedKey += "_" + key
+    }
+
+    generatedKeyInput.value = generatedKey
+}
+
+
+
+private fun setupCopyElement(): Unit {
+    val copyElem = document.getElementById("content_copy")
+    copyElem?.addEventListener("click", fun(event: Event) {
+
+//        val elem = document.createElement("input") as HTMLInputElement
+//        elem.value = "Copy text"
+//        elem.select()
+//
+//        console.log(elem)
+
+//
+        val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
+        val clipboardInput = document.getElementById("clipboard_input") as HTMLInputElement
+        clipboardInput.value = generatedKeyInput.value
+//        clipboardInput.addClass("visible")
+        clipboardInput.select()
+//        clipboardInput.removeClass("visible")
+        document.execCommand("copy")
+        js("M.toast({html: 'Copied', classes: 'rounded'});")
+    })
+}
 
 private fun setupDropDown(json: Json): Unit {
 
@@ -334,7 +408,7 @@ fun addLanguageInputsToPopup(json: Json): Unit {
             innerHtml += "" +
                     "<div class=\"row\">" +
                     "   <div class=\"input-field col s12\">\n" +
-                    "       <i class=\"material-icons prefix\">g_translate</i>\n" +
+                    "       <i class=\"material-icons prefix value\">g_translate</i>\n" +
                     "       <input id=\"language_input_${languageCode}\" data-key=\"${languageCode}\" type=\"text\" autocomplete=\"off\" class=\"validate language_input\" pattern=\".{1,}\" required title=\"\">" +
                     "       <label for=\"language_input_${languageCode}\">${languageName}</label>" +
                     "   </div>" +
@@ -344,7 +418,7 @@ fun addLanguageInputsToPopup(json: Json): Unit {
         element.innerHTML = innerHtml
 
 
-        val elems = document.querySelectorAll("i.material-icons.prefix")
+        val elems = document.querySelectorAll("i.material-icons.prefix.value")
         console.log(elems)
 
         elems.asList().forEach {

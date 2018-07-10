@@ -142,9 +142,14 @@ table {
     overflow: hidden;
 }
 
-.material-icons.prefix {
+.material-icons.prefix.value material-icons.prefix.copy {
     /*display: none;*/
     cursor: pointer;
+}
+
+#clipboard_input {
+    max-height: 0px;
+    border-bottom: none;
 }
 
 .material-icons.prefix.active {
@@ -156,11 +161,15 @@ table {
     width: 150px;
 }
 
-/*thead {*/
-    /*!*box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.1);*!*/
-/*}*/
+.row {
+    margin-bottom: 10px;
+    max-height: 60px;
+}
 
-
+#disabled {
+    text-align: center;
+    color: #454545;
+}
 
 tbody {
     display:block;
