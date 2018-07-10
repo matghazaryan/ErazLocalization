@@ -122,9 +122,57 @@ table {
 .float_button {
     display: flex;
     margin-right: 15px;
+    margin-bottom: 10px;
     justify-content: flex-end;
 }
 
 .input-field.col.s12 {
     height: 60px;
+}
+
+
+#input_row {
+    max-height: 64px;
+}
+
+
+.table_index {
+    font-weight: bold;
+    width: 50px;
+    overflow: hidden;
+}
+
+.material-icons.prefix {
+    /*display: none;*/
+    cursor: pointer;
+}
+
+.material-icons.prefix.active {
+    /*display: block;*/
+    cursor: pointer;
+}
+
+.table_screen {
+    width: 150px;
+}
+
+/*thead {*/
+    /*!*box-shadow: 0 2px 5px 1px rgba(0, 0, 0, 0.1);*!*/
+/*}*/
+
+
+
+tbody {
+    display:block;
+    height: 500px;
+    overflow:auto;
+}
+thead, tbody tr {
+    display:table;
+    width:100%;
+    table-layout:fixed;
+}
+
+table {
+    width:100%;
 }

@@ -6,17 +6,20 @@ import org.w3c.files.File
 import org.w3c.files.FilePropertyBag
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.dom.addClass
 import kotlin.dom.clear
 import kotlin.dom.createElement
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
+import kotlin.math.cos
 
 // Բայց սոռտ է, մարդավարի ES5/ES6 ով կգրես, require('firebase/app') կամ import firebase from 'firebase'
 // չի աշխատի, տողի վրա կգրես, կաշխատի 😂
 
 var firebase: dynamic = js("firebase")
 var dbRef = firebase.database().ref().child("projects")
+var projectName = String()
 
 fun main(args: Array<String>) {
     if (window.location.href.contains("index.html", false)) {
@@ -131,20 +134,23 @@ fun main(args: Array<String>) {
             }
         }
     } else if (window.location.href.contains("project.html")) {
+
+        window.onload  = {
+            setupModal()
+        }
+
         val url = URL(document.location!!.href)
         val targetProjectAlias = url.searchParams.get("alias")
 
+
         if (targetProjectAlias != null) {
+
             val collectionElement = document.getElementById("collection-header")
 
-            var projectJson: Json
-
             getProject(targetProjectAlias) {
-
-                projectJson = it
                 addLanguageInputsToPopup(it)
 
-                val projectName = it["name"] as String
+                projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
                 var languages = arrayListOf<String>()
@@ -169,6 +175,7 @@ fun main(args: Array<String>) {
                 })
 
                 initTypeAutocompleteList(types)
+                setupDropDown(it)
 
                 if (collectionElement != null) {
 
@@ -215,41 +222,99 @@ fun main(args: Array<String>) {
 
                     collectionElement.innerHTML = innerHtml
 
-                    js("var elems = document.querySelectorAll('.modal');\n" +
-                            "    console.log(elems);" +
-                            "    var instances = M.Modal.init(elems, {});\n"
-                    )
+                    setupDropDown(it)
 
-                    js("var elems = document.querySelectorAll('.dropdown-trigger');\n" +
-                            "    var instances = M.Dropdown.init(elems, {});")
-
-
-                    val exportiOSElement = document.getElementById("export_ios")
-                    val exportAndroidElement = document.getElementById("export_android")
-                    val exportWebElement = document.getElementById("export_web")
-
-                    exportiOSElement?.addEventListener("click", fun(event: Event) {
-                        saveiOS(projectJson)
-                        console.log("saveiOS")
-                    })
-
-                    exportAndroidElement?.addEventListener("click", fun(event: Event) {
-                        saveAndroid(projectJson)
-                        console.log("saveAndroid")
-                    })
-
-                    exportWebElement?.addEventListener("click", fun(event: Event) {
-                        saveWeb(projectJson)
-                        console.log("saveWeb")
-                    })
                 }
             }
         }
     }
 }
 
+
+private fun setupModal(): Unit {
+
+    val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
+    val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
+    val keyInput = document.getElementById("localization_value") as HTMLInputElement
+    val form = document.getElementById("localization_form") as HTMLFormElement
+
+    val elems = document.querySelectorAll(".modal")
+
+    val params = json("onCloseEnd" to fun () {
+        screenNameInput.value = ""
+        typeInput.value =  ""
+        keyInput.value = ""
+
+        form.reset()
+    })
+
+    js("M").Modal.init(elems, params)
+
+    val addProjectElem = document.getElementById("add_project")
+    addProjectElem?.addEventListener("click", fun(event:Event) {
+
+        val screenName = screenNameInput.value
+        val type = typeInput.value
+        val key = keyInput.value
+
+        form.reportValidity()
+        val isValid = form.checkValidity()
+
+        console.log(isValid)
+
+        if (isValid == false) {
+            return
+        }
+
+        val normalizedKey = screenName + "_" + type + "_" + key
+        console.log(normalizedKey)
+
+        var values = json()
+
+        val elements = document.querySelectorAll("input.validate.language_input")
+        for (element in elements.asList()) {
+            val inputElem = element as HTMLInputElement
+            val key = inputElem.getAttribute("data-key") as String
+            val value = inputElem.value
+            values.set(key, value)
+        }
+
+        console.log(values)
+        addLocalization(projectName, screenName, type, normalizedKey, values)
+
+        val elem = document.getElementById("modal1")
+        val modal = js("M").Modal.getInstance(elem)
+        modal.close()
+    })
+}
+
+
+
+private fun setupDropDown(json: Json): Unit {
+
+    js("var elems = document.querySelectorAll('.dropdown-trigger');" +
+             "var instances = M.Dropdown.init(elems, {});"
+    )
+
+    val exportiOSElement = document.getElementById("export_ios")
+    val exportAndroidElement = document.getElementById("export_android")
+    val exportWebElement = document.getElementById("export_web")
+
+    exportiOSElement?.addEventListener("click", fun(event: Event) {
+        saveiOS(json)
+    })
+
+    exportAndroidElement?.addEventListener("click", fun(event: Event) {
+        saveAndroid(json)
+    })
+
+    exportWebElement?.addEventListener("click", fun(event: Event) {
+        saveWeb(json)
+    })
+}
+
 fun getColumNames(languages: ArrayList<String>): String {
-    var str =  "<th>N</th>" + "<th>Screen</th>" +  "<th>Key</th>"
+    var str =  "<th class=\"table_index\">N</th>" + "<th class=\"table_screen\">Screen</th>" +  "<th>Key</th>"
     for (language in languages) {
         str += "<th>${language}</th>"
     }
@@ -261,7 +326,6 @@ fun addLanguageInputsToPopup(json: Json): Unit {
     if (element != null) {
         var innerHtml = ""
 
-
         val languagesJson = json["languages"] as Json
         js("Object").values(languagesJson).forEach(fun (language: dynamic) {
             var languageName = language["langName"] as String
@@ -269,15 +333,47 @@ fun addLanguageInputsToPopup(json: Json): Unit {
 
             innerHtml += "" +
                     "<div class=\"row\">" +
-                    "   <div class=\"input-field col s12\">" +
-                    "   <input id=\"language_input\" data-key=\"${languageCode}\" type=\"text\" class=\"validate\">" +
-                    "   <label for=\"language_input\">${languageName}</label>" +
+                    "   <div class=\"input-field col s12\">\n" +
+                    "       <i class=\"material-icons prefix\">g_translate</i>\n" +
+                    "       <input id=\"language_input_${languageCode}\" data-key=\"${languageCode}\" type=\"text\" autocomplete=\"off\" class=\"validate language_input\" pattern=\".{1,}\" required title=\"\">" +
+                    "       <label for=\"language_input_${languageCode}\">${languageName}</label>" +
                     "   </div>" +
                     "</div>"
-
         })
 
         element.innerHTML = innerHtml
+
+
+        val elems = document.querySelectorAll("i.material-icons.prefix")
+        console.log(elems)
+
+        elems.asList().forEach {
+            it.addEventListener("click", fun(event: Event) {
+                val parentElement = it.parentElement as HTMLDivElement
+                val inputElement = parentElement.children[1] as HTMLInputElement
+                val from = inputElement.value
+
+                if (from.isEmpty()) {
+                    alert("Please type value")
+                    return
+                }
+
+                val langKey = inputElement.getAttribute("data-key") as String
+                val inputElems = document.querySelectorAll("input.validate.language_input")
+                inputElems.asList().forEach {
+                    val languageInputElement = it as HTMLInputElement
+                    val _langKey = languageInputElement.getAttribute("data-key") as String
+
+                    if (langKey != _langKey) {
+                        console.log(langKey, "-", _langKey)
+                        YandexHelper.translate(_langKey, from).then {
+                            languageInputElement.focus()
+                            languageInputElement.value = it
+                        }
+                    }
+                }
+            })
+        }
     }
 }
 
@@ -301,8 +397,8 @@ fun getRows(json: Json): String {
                 val key = localization["key"] as String
 
                 str += "<tr>" +
-                        "<td>${index}</td>" +
-                        "<td>${screen}</td>" +
+                        "<td class=\"table_index\">${index}</td>" +
+                        "<td class=\"table_screen\">${screen}</td>" +
                         "<td>${key}</td>"
 
                 var values = arrayListOf<String>()
@@ -336,11 +432,12 @@ fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
     callBack(map)
 }
 
+
 external fun alert(message: Any?): Unit
 external fun encodeURIComponent(uri: String): String
 external fun initScreenAutocompleteList(screenNames: Array<String>): Unit
 external fun initTypeAutocompleteList(types: Array<String>): Unit
-external fun encodeURI(uri: String): String
 external fun saveiOS(project: Json): Unit
 external fun saveAndroid(project: Json): Unit
 external fun saveWeb(project: Json): Unit
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json): Unit
