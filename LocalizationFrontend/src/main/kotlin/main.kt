@@ -226,6 +226,13 @@ fun main(args: Array<String>) {
                         th.innerText = language
                         row.appendChild(th)
                     }
+
+                    val options = document.createElement("th") as HTMLTableCellElement
+                    options.addClass("head_options")
+                    options.innerText = "   "
+                    row.appendChild(options)
+
+
                     tableHead.appendChild(row)
                     val tableBody = document.createElement("tbody")
                     var index = 0
@@ -239,31 +246,6 @@ fun main(args: Array<String>) {
                             tableBody.appendChild(tr)
                         }
                     })
-//                    Object().values(it["screens"]).forEach(fun(screen: String) {
-//                        val screenLocalization = localization[screen] as? Json
-//                        if (screenLocalization != null) {
-//                            Object().values(screenLocalization).forEach(fun(localization: dynamic) {
-//                                val key = localization["key"] as String
-//                                val tr = document.createElement("tr") as HTMLTableRowElement
-//                                val tableIndex = document.createElement("td")
-//                                tableIndex.addClass("table_index")
-//                                tableIndex.innerHTML = "$index"
-//                                val tableScreen = document.createElement("td")
-//                                tableScreen.addClass("table_screen")
-//                                tableScreen.innerHTML = screen
-//                                val tableKey = document.createElement("td")
-//                                tableKey.innerHTML = key
-//                                tr.append(tableIndex, tableScreen, tableKey)
-//                                Object().values(localization["values"]).forEach(fun(value: dynamic) {
-//                                    val languageValue = value["lang_value"] as String
-//                                    val td = document.createElement("td")
-//                                    td.innerHTML = languageValue
-//                                    tr.appendChild(td)
-//                                })
-//
-//                            })
-//                        }
-//                    })
 
                     table.append(tableHead, tableBody)
 
@@ -272,6 +254,8 @@ fun main(args: Array<String>) {
                     floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
+
+                    addEditingActions()
 
                     setupDropDown(it)
 
@@ -330,6 +314,7 @@ private fun setupModal() {
         val screenName = screenNameInput.value.trim('_')
         val type = typeInput.value.trim('_')
         val key = keyInput.value.trim('_')
+        val comment = commentInput.value
 
         form.reportValidity()
         val isValid = form.checkValidity()
@@ -354,12 +339,23 @@ private fun setupModal() {
         }
 
         console.log(values)
-        addLocalization(projectName, screenName, type, normalizedKey, values, "")
+        addLocalization(projectName, screenName, type, normalizedKey, values, comment)
 
         val elem = document.getElementById("modal1")
         val modal = js("M").Modal.getInstance(elem)
         modal.close()
     })
+}
+
+
+private fun addEditingActions(): Unit {
+//    val elems = document.querySelectorAll("i.small.material-icons.action")
+//    console.log(elems)
+//    for (elem in elems.asList()) {
+//        elem.addEventListener("click", fun(event: Event) {
+////            console.log(elem .getAttribute("data-key"))
+//        })
+//    }
 }
 
 
@@ -388,24 +384,13 @@ private fun generateKey(): Unit {
 }
 
 
-
 private fun setupCopyElement(): Unit {
     val copyElem = document.getElementById("content_copy")
     copyElem?.addEventListener("click", fun(event: Event) {
-
-//        val elem = document.createElement("input") as HTMLInputElement
-//        elem.value = "Copy text"
-//        elem.select()
-//
-//        console.log(elem)
-
-//
         val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
         val clipboardInput = document.getElementById("clipboard_input") as HTMLInputElement
         clipboardInput.value = generatedKeyInput.value
-//        clipboardInput.addClass("visible")
         clipboardInput.select()
-//        clipboardInput.removeClass("visible")
         document.execCommand("copy")
         js("M.toast({html: 'Copied', classes: 'rounded'});")
     })
@@ -466,6 +451,63 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
         td.innerHTML = languageValue
         tr.appendChild(td)
     }
+    val tdOptions = document.createElement("td")
+    tdOptions.addClass("head_options")
+
+    val deleteElem = document.createElement("i") as HTMLElement
+    deleteElem.addClass("small")
+    deleteElem.addClass("material-icons")
+    deleteElem.addClass("action")
+    deleteElem.innerText = "delete"
+
+    deleteElem.addEventListener("click", fun(event:Event) {
+        remove
+        console.log("delete")
+    })
+
+
+    val editElem = document.createElement("i") as HTMLElement
+    editElem.addClass("small")
+    editElem.addClass("material-icons")
+    editElem.addClass("action")
+    editElem.innerText = "edit"
+
+    editElem.addEventListener("click", fun(event:Event) {
+        console.log("edit")
+
+        val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
+        val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
+        val keyInput = document.getElementById("localization_value") as HTMLInputElement
+        val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
+        val commentInput = document.getElementById("localization_comment") as HTMLInputElement
+        val languageElements = document.querySelectorAll("input.validate.language_input")
+
+        val trElement = editElem.parentElement?.parentElement as HTMLTableRowElement
+
+        val screenName = trElement.children[1]?.innerHTML as String
+        val key = trElement.children[2]?.innerHTML as String
+
+        screenNameInput.value = screenName
+        keyInput.value = key.substringAfterLast("_")
+        typeInput.value = key.substringAfter("_").substringBeforeLast("_")
+        generatedKeyInput.value = key
+
+        console.log(trElement.children)
+
+        for (i in 3..trElement.childElementCount-2) {
+            console.log(i)
+            val languageElement = languageElements[i-3] as HTMLInputElement
+            languageElement.value = trElement.children[i]?.innerHTML as String
+        }
+
+        val modal = document.getElementById("modal1")
+        var instance = js("M").Modal.getInstance(modal)
+        instance.open();
+    })
+
+    tdOptions.append(deleteElem, editElem)
+
+    tr.appendChild(tdOptions)
     return tr
 }
 
