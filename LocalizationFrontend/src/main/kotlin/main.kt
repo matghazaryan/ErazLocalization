@@ -1,18 +1,11 @@
 import org.w3c.dom.*
 import org.w3c.dom.events.Event
 import org.w3c.dom.url.URL
-import org.w3c.files.Blob
-import org.w3c.files.File
-import org.w3c.files.FilePropertyBag
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.dom.addClass
-import kotlin.dom.clear
-import kotlin.dom.createElement
 import kotlin.js.Json
-import kotlin.js.Promise
 import kotlin.js.json
-import kotlin.math.cos
 
 // Բայց սոռտ է, մարդավարի ES5/ES6 ով կգրես, require('firebase/app') կամ import firebase from 'firebase'
 // չի աշխատի, տողի վրա կգրես, կաշխատի 😂
@@ -25,7 +18,7 @@ fun main(args: Array<String>) {
     if (window.location.href.contains("index.html", false)) {
 
         window.onload = {
-            val elems = document.querySelectorAll(".modal")
+            var elems = document.querySelectorAll(".modal")
             val params = json("onCloseEnd" to fun () {
                 (document.getElementById("project_name") as HTMLInputElement).value = ""
                 (document.getElementById("project_alias") as HTMLInputElement).value = ""
@@ -35,7 +28,7 @@ fun main(args: Array<String>) {
             YandexHelper.supportedLanguages().then {
                 val select = document.createElement("select") as HTMLSelectElement
                 select.multiple = true
-                var index = it.keys.indexOf("en")
+                val index = it.keys.indexOf("en")
                 it.forEach {
                     val option = document.createElement("option") as HTMLOptionElement
                     option.value = it.key
@@ -45,8 +38,8 @@ fun main(args: Array<String>) {
                 select.options.selectedIndex = index
                 val div = document.getElementById("languages-combobox") as HTMLDivElement
                 div.insertBefore(select, div.firstChild)
-                val elems = document.querySelectorAll("select")
-                val instance = js("M").FormSelect.init(elems, {})
+                elems = document.querySelectorAll("select")
+                js("M").FormSelect.init(elems, {})
                 val addButton = document.getElementById("add_project")
                 addButton?.addEventListener("click", {
                     val projectName = (document.getElementById("project_name") as HTMLInputElement).value
@@ -142,26 +135,25 @@ fun main(args: Array<String>) {
         val url = URL(document.location!!.href)
         val targetProjectAlias = url.searchParams.get("alias")
 
-
         if (targetProjectAlias != null) {
 
             val collectionElement = document.getElementById("collection-header")
 
             getProject(targetProjectAlias) {
                 addLanguageInputsToPopup(it)
-
                 projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
-                var languages = arrayListOf<String>()
+                val languages = arrayListOf<String>()
                 val languagesJson = it["languages"] as Json
                 js("Object").values(languagesJson).forEach(fun (language: dynamic) {
                     languages.add(language["langName"] as String)
                 })
 
 
-                var screens = arrayOf<String>()
+                val screens = arrayOf<String>()
                 val screensJson = it["screens"] as Json
+                console.log("hasav stex" , screensJson)
                 js("Object").values(screensJson).forEach(fun(screen: String) {
                     screens[screens.count()] = screen
                 })
@@ -250,14 +242,14 @@ fun main(args: Array<String>) {
                                 tableIndex.innerHTML = "$index"
                                 val tableScreen = document.createElement("td")
                                 tableScreen.addClass("table_screen")
-                                tableScreen.innerHTML = "$screen"
+                                tableScreen.innerHTML = screen
                                 val tableKey = document.createElement("td")
-                                tableKey.innerHTML = "$key"
+                                tableKey.innerHTML = key
                                 tr.append(tableIndex, tableScreen, tableKey)
                                 Object().values(localization["values"]).forEach(fun(value: dynamic) {
                                     val languageValue = value["lang_value"] as String
                                     val td = document.createElement("td")
-                                    td.innerHTML = "$languageValue"
+                                    td.innerHTML = languageValue
                                     tr.appendChild(td)
                                 })
                                 tableBody.appendChild(tr)
@@ -282,7 +274,7 @@ fun main(args: Array<String>) {
 }
 
 
-private fun setupModal(): Unit {
+private fun setupModal() {
 
     val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
     val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
@@ -331,7 +323,7 @@ private fun setupModal(): Unit {
         }
 
         console.log(values)
-        addLocalization(projectName, screenName, type, normalizedKey, values)
+        addLocalization(projectName, screenName, type, normalizedKey, values, "")
 
         val elem = document.getElementById("modal1")
         val modal = js("M").Modal.getInstance(elem)
@@ -341,7 +333,7 @@ private fun setupModal(): Unit {
 
 
 
-private fun setupDropDown(json: Json): Unit {
+private fun setupDropDown(json: Json) {
 
     js("var elems = document.querySelectorAll('.dropdown-trigger');" +
              "var instances = M.Dropdown.init(elems, {});"
@@ -364,15 +356,15 @@ private fun setupDropDown(json: Json): Unit {
     })
 }
 
-fun addLanguageInputsToPopup(json: Json): Unit {
+fun addLanguageInputsToPopup(json: Json) {
     val element = document.getElementById("localization_input")
     if (element != null) {
         var innerHtml = ""
 
         val languagesJson = json["languages"] as Json
         js("Object").values(languagesJson).forEach(fun (language: dynamic) {
-            var languageName = language["langName"] as String
-            var languageCode = language["langCode"] as String
+            val languageName = language["langName"] as String
+            val languageCode = language["langCode"] as String
 
             innerHtml += "" +
                     "<div class=\"row\">" +
@@ -435,11 +427,12 @@ fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
 }
 
 
-external fun alert(message: Any?): Unit
+external fun alert(message: Any?)
 external fun encodeURIComponent(uri: String): String
-external fun initScreenAutocompleteList(screenNames: Array<String>): Unit
-external fun initTypeAutocompleteList(types: Array<String>): Unit
-external fun saveiOS(project: Json): Unit
-external fun saveAndroid(project: Json): Unit
-external fun saveWeb(project: Json): Unit
-external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json): Unit
+external fun initScreenAutocompleteList(screenNames: Array<String>)
+external fun initTypeAutocompleteList(types: Array<String>)
+external fun saveiOS(project: Json)
+external fun saveAndroid(project: Json)
+external fun saveWeb(project: Json)
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, comment: String?)
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json)
