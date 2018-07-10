@@ -238,6 +238,13 @@ fun main(args: Array<String>) {
                         th.innerText = language
                         row.appendChild(th)
                     }
+
+                    val options = document.createElement("th") as HTMLTableCellElement
+                    options.addClass("head_options")
+                    options.innerText = "   "
+                    row.appendChild(options)
+
+
                     tableHead.appendChild(row)
                     val tableBody = document.createElement("tbody")
                     var index = 0
@@ -264,7 +271,36 @@ fun main(args: Array<String>) {
                                     td.innerHTML = "$languageValue"
                                     tr.appendChild(td)
                                 })
+
+                                val tdOptions = document.createElement("td")
+                                tdOptions.addClass("head_options")
+
+                                val deleteElem = document.createElement("i") as HTMLElement
+                                deleteElem.addClass("small")
+                                deleteElem.addClass("material-icons")
+                                deleteElem.addClass("action")
+                                deleteElem.innerText = "delete"
+
+                                deleteElem.addEventListener("click", fun(event:Event) {
+                                    console.log("delete")
+                                })
+
+
+                                val editElem = document.createElement("i") as HTMLElement
+                                editElem.addClass("small")
+                                editElem.addClass("material-icons")
+                                editElem.addClass("action")
+                                editElem.innerText = "edit"
+
+                                editElem.addEventListener("click", fun(event:Event) {
+                                    console.log("edit")
+                                })
+
+                                tdOptions.append(deleteElem, editElem)
+
+                                tr.appendChild(tdOptions)
                                 tableBody.appendChild(tr)
+
                             })
                         }
                     })
@@ -276,6 +312,8 @@ fun main(args: Array<String>) {
                     floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
+
+                    addEditingActions()
 
                     setupDropDown(it)
 
@@ -367,6 +405,17 @@ private fun setupModal(): Unit {
 }
 
 
+private fun addEditingActions(): Unit {
+//    val elems = document.querySelectorAll("i.small.material-icons.action")
+//    console.log(elems)
+//    for (elem in elems.asList()) {
+//        elem.addEventListener("click", fun(event: Event) {
+////            console.log(elem .getAttribute("data-key"))
+//        })
+//    }
+}
+
+
 private fun generateKey(): Unit {
 
     val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
@@ -392,24 +441,13 @@ private fun generateKey(): Unit {
 }
 
 
-
 private fun setupCopyElement(): Unit {
     val copyElem = document.getElementById("content_copy")
     copyElem?.addEventListener("click", fun(event: Event) {
-
-//        val elem = document.createElement("input") as HTMLInputElement
-//        elem.value = "Copy text"
-//        elem.select()
-//
-//        console.log(elem)
-
-//
         val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
         val clipboardInput = document.getElementById("clipboard_input") as HTMLInputElement
         clipboardInput.value = generatedKeyInput.value
-//        clipboardInput.addClass("visible")
         clipboardInput.select()
-//        clipboardInput.removeClass("visible")
         document.execCommand("copy")
         js("M.toast({html: 'Copied', classes: 'rounded'});")
     })
