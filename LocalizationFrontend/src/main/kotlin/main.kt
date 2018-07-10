@@ -179,48 +179,99 @@ fun main(args: Array<String>) {
 
                 if (collectionElement != null) {
 
-                    var innerHtml =
-                            "<div class=\"header-container\">" +
-                                "<div class=\"header-container-base\">" +
-                                    "<div>" +
-                                        "<h5>${projectName}</h5>" +
-                                        "<h6>${projectAlias}</h6>" +
-                                     "</div>" +
-                                    "<div class=\"export_button\">" +
-                                        " <!-- Dropdown Trigger -->\n" +
-                                    "  <a class='dropdown-trigger btn' href='#' data-target='dropdown1'>Export</a>\n" +
-                                    "\n" +
-                                    "  <!-- Dropdown Structure -->\n" +
-                                    "  <ul id='dropdown1' class='dropdown-content'>\n" +
-                                    "    <li><a href=\"#!\" id=\"export_ios\">iOS</a></li>\n" +
-                                    "    <li class=\"divider\" tabindex=\"-1\"></li>\n" +
-                                    "    <li><a href=\"#!\" id=\"export_android\">Andriod</a></li>\n" +
-                                    "    <li class=\"divider\" tabindex=\"-1\"></li>\n" +
-                                    "    <li><a href=\"#!\" id=\"export_web\">Web</a></li>\n" +
-                                    "  </ul>" +
-                                    "</div>" +
-                                "</div>" +
-                            "</div>"
+                    // Header
+                    val headerContainer = document.createElement("div") as HTMLDivElement
+                    headerContainer.addClass("header-container")
+                    val headerContainerBase = document.createElement("div") as HTMLDivElement
+                    headerContainerBase.addClass("header-container-base")
+                    val projectNameAndAlias = document.createElement("div") as HTMLDivElement
+                    val HProjectName = document.createElement("h5") as HTMLHeadingElement
+                    HProjectName.innerText = projectName
+                    val HProjectAlias = document.createElement("h6") as HTMLHeadingElement
+                    HProjectAlias.innerText = projectAlias
+                    projectNameAndAlias.append(HProjectName, HProjectAlias)
+                    val exportButton = document.createElement("div") as HTMLDivElement
+                    exportButton.addClass("export_button")
+                    exportButton.innerHTML = " <!-- Dropdown Trigger -->\n"
+                    val dropdownTrigger = document.createElement("a")
+                    dropdownTrigger.addClass("dropdown-trigger btn")
+                    dropdownTrigger.setAttribute("href", "#")
+                    dropdownTrigger.setAttribute("data-target", "dropdown1")
+                    dropdownTrigger.innerHTML = "Export"
+                    val dropdownContent = document.createElement("ul") as HTMLUListElement
+                    dropdownContent.addClass("dropdown-content")
+                    dropdownContent.id = "dropdown1"
+                    val exportiOS = document.createElement("li") as HTMLLIElement
+                    exportiOS.innerHTML = "<a href=\"#!\" id=\"export_ios\">iOS</a>"
+                    val divider = document.createElement("li") as HTMLLIElement
+                    divider.addClass("divider")
+                    divider.tabIndex = -1
+                    val exportAndroid = document.createElement("li") as HTMLLIElement
+                    exportAndroid.innerHTML = "<a href=\"#!\" id=\"export_android\">Andriod</a>"
+                    val exportWeb = document.createElement("li") as HTMLLIElement
+                    exportWeb.innerHTML = "<a href=\"#!\" id=\"export_web\">Web</a>"
+                    dropdownContent.append(exportiOS, divider, exportAndroid, divider.cloneNode(true), exportWeb)
+                    exportButton.append(dropdownTrigger, dropdownContent)
+                    headerContainerBase.append(projectNameAndAlias, exportButton)
+                    headerContainer.appendChild(headerContainerBase)
 
-                    val tableData =
-                            "<table class=\"highlight centered responsive-table\">" +
-                                    "<thead>" +
-                                    "<tr>" +
-                                    getColumNames(languages) +
-                                    "</tr>" +
-                                    "</thead>" +
-                                    "<tbody>" +
-                                    getRows(it) +
-                                    "</tbody>" +
-                                    "</table>"
+                    //Table Data
+                    val table = document.createElement("table") as HTMLTableElement
+                    table.addClass("highlight centered responsive-table")
+                    val tableHead = document.createElement("thead")
+                    val row = document.createElement("tr") as HTMLTableRowElement
+                    val tableIndex = document.createElement("th") as HTMLTableCellElement
+                    tableIndex.addClass("table_index")
+                    tableIndex.innerText = "N"
+                    val tableScreen = document.createElement("th") as HTMLTableCellElement
+                    tableScreen.addClass("table_screen")
+                    tableScreen.innerText = "Screen"
+                    val tableKey = document.createElement("th") as HTMLTableCellElement
+                    tableKey.innerText = "Key"
+                    row.append(tableIndex, tableScreen, tableKey)
+                    for (language in languages) {
+                        val th = document.createElement("th") as HTMLTableCellElement
+                        th.innerText = language
+                        row.appendChild(th)
+                    }
+                    tableHead.appendChild(row)
+                    val tableBody = document.createElement("tbody")
+                    var index = 0
+                    val localization = it["localization"] as Json
+                    Object().values(it["screens"]).forEach(fun(screen: String) {
+                        val screenLocalization = localization[screen] as? Json
+                        if (screenLocalization != null) {
+                            Object().values(screenLocalization).forEach(fun(localization: dynamic) {
+                                index++
+                                val key = localization["key"] as String
+                                val tr = document.createElement("tr") as HTMLTableRowElement
+                                val tableIndex = document.createElement("td")
+                                tableIndex.addClass("table_index")
+                                tableIndex.innerHTML = "$index"
+                                val tableScreen = document.createElement("td")
+                                tableScreen.addClass("table_screen")
+                                tableScreen.innerHTML = "$screen"
+                                val tableKey = document.createElement("td")
+                                tableKey.innerHTML = "$key"
+                                tr.append(tableIndex, tableScreen, tableKey)
+                                Object().values(localization["values"]).forEach(fun(value: dynamic) {
+                                    val languageValue = value["lang_value"] as String
+                                    val td = document.createElement("td")
+                                    td.innerHTML = "$languageValue"
+                                    tr.appendChild(td)
+                                })
+                                tableBody.appendChild(tr)
+                            })
+                        }
+                    })
 
-                    innerHtml += tableData
+                    table.append(tableHead, tableBody)
 
-                    innerHtml += "<div class=\"float_button\">" +
-                                    "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n" +
-                                    "</div>"
-
-                    collectionElement.innerHTML = innerHtml
+                    val floatButton = document.createElement("div") as HTMLDivElement
+                    floatButton.addClass("float_button")
+                    floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
+                    collectionElement.innerHTML = ""
+                    collectionElement.append(headerContainer, table, floatButton)
 
                     setupDropDown(it)
 
@@ -313,14 +364,6 @@ private fun setupDropDown(json: Json): Unit {
     })
 }
 
-fun getColumNames(languages: ArrayList<String>): String {
-    var str =  "<th class=\"table_index\">N</th>" + "<th class=\"table_screen\">Screen</th>" +  "<th>Key</th>"
-    for (language in languages) {
-        str += "<th>${language}</th>"
-    }
-    return str
-}
-
 fun addLanguageInputsToPopup(json: Json): Unit {
     val element = document.getElementById("localization_input")
     if (element != null) {
@@ -377,48 +420,7 @@ fun addLanguageInputsToPopup(json: Json): Unit {
     }
 }
 
-fun getRows(json: Json): String {
-    var str = ""
-    var index = 0
 
-    var screens = arrayListOf<String>()
-    val screensJson = json["screens"] as Json
-    js("Object").values(screensJson).forEach(fun(screen: String) {
-        screens.add(screen)
-    })
-
-    val localization = json["localization"] as Json
-    for (screen in screens) {
-
-        val screenLocalization = localization[screen] as? Json
-        if (screenLocalization != null) {
-            js("Object").values(screenLocalization).forEach(fun(localization: dynamic) {
-                index++
-                val key = localization["key"] as String
-
-                str += "<tr>" +
-                        "<td class=\"table_index\">${index}</td>" +
-                        "<td class=\"table_screen\">${screen}</td>" +
-                        "<td>${key}</td>"
-
-                var values = arrayListOf<String>()
-                val valuesJson = localization["values"] as Json
-                js("Object").values(valuesJson).forEach(fun(value: dynamic) {
-                    val languageKey = value["lang_key"] as String
-                    val languageValue = value["lang_value"] as String
-                    str += "<td>${languageValue}</td>"
-                })
-
-                str += "</tr>"
-            })
-
-        } else {
-            continue
-        }
-    }
-
-    return str
-}
 
 /// Helpers
 
