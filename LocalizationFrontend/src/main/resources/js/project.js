@@ -1,7 +1,11 @@
 const dbRef = firebase.database().ref("projects");
-
+let localizationKeys = [];
 
 function addLocalization(projectName, screenName, type, newKey, valuesMap, comment) {
+    if (localizationKeys.includes(newKey)) {
+        alert("Key is already exist");
+        return
+    }
     let includeScrean = false;
     let includeType = false;
     let screensRef = dbRef.child(projectName + "/screens");

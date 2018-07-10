@@ -2,7 +2,7 @@ import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
 
-var keys = arrayListOf<String>()
+external var localizationKeys: dynamic
 
 fun createProject(name: String, alias: String, languages: Array<Pair<String, String>>): String {
     val json = createJson()
@@ -49,7 +49,7 @@ fun getProject(name: String, listener: (Json) -> Unit) {
         if (localizations != null) {
             Object().values(localizations).forEach(fun(value: dynamic) {
                 Object().values(value).forEach(fun(valu: Json) {
-                    keys.add(valu["key"].toString())
+                    localizationKeys.push(valu["key"].toString())
                 })
             })
         }
@@ -250,8 +250,9 @@ fun editLocalization(name: String, screen: String, key: String, languageCode: St
             })
 }
 
+@JsName("existKeyInProject")
 fun existKeyInProject(key: String): Boolean {
-    return keys.contains(key)
+    return localizationKeys.includes(key)
 }
 
 fun createJson(): dynamic {
