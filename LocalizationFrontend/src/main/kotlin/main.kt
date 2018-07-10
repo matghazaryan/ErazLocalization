@@ -286,6 +286,35 @@ fun main(args: Array<String>) {
 
                                 editElem.addEventListener("click", fun(event:Event) {
                                     console.log("edit")
+
+                                    val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
+                                    val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
+                                    val keyInput = document.getElementById("localization_value") as HTMLInputElement
+                                    val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
+                                    val commentInput = document.getElementById("localization_comment") as HTMLInputElement
+                                    val languageElements = document.querySelectorAll("input.validate.language_input")
+
+                                    val trElement = editElem.parentElement?.parentElement as HTMLTableRowElement
+
+                                    val screenName = trElement.children[1]?.innerHTML as String
+                                    val key = trElement.children[2]?.innerHTML as String
+
+                                    screenNameInput.value = screenName
+                                    keyInput.value = key.substringAfterLast("_")
+                                    typeInput.value = key.substringAfter("_").substringBeforeLast("_")
+                                    generatedKeyInput.value = key
+
+                                    console.log(trElement.children)
+
+                                    for (i in 3..trElement.childElementCount-2) {
+                                        console.log(i)
+                                        val languageElement = languageElements[i-3] as HTMLInputElement
+                                        languageElement.value = trElement.children[i]?.innerHTML as String
+                                    }
+
+                                    val modal = document.getElementById("modal1")
+                                    var instance = js("M").Modal.getInstance(modal)
+                                    instance.open();
                                 })
 
                                 tdOptions.append(deleteElem, editElem)
@@ -364,6 +393,7 @@ private fun setupModal() {
         val screenName = screenNameInput.value.trim('_')
         val type = typeInput.value.trim('_')
         val key = keyInput.value.trim('_')
+        val comment = commentInput.value
 
         form.reportValidity()
         val isValid = form.checkValidity()
@@ -388,7 +418,7 @@ private fun setupModal() {
         }
 
         console.log(values)
-        addLocalization(projectName, screenName, type, normalizedKey, values, "")
+        addLocalization(projectName, screenName, type, normalizedKey, values, comment)
 
         val elem = document.getElementById("modal1")
         val modal = js("M").Modal.getInstance(elem)
