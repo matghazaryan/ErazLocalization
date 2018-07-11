@@ -4,6 +4,7 @@ import org.w3c.dom.url.URL
 import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.dom.addClass
+import kotlin.dom.removeClass
 import kotlin.js.Json
 import kotlin.js.json
 
@@ -54,6 +55,7 @@ fun main(args: Array<String>) {
                     }
                 })
             }
+
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
                 while (divProjects.childElementCount > 1) {
@@ -66,38 +68,61 @@ fun main(args: Array<String>) {
                 it.forEach {
                     var projectCard = document.getElementById(it["alias"].toString())
                     if (projectCard == null) {
+
                         projectCard = document.createElement("div") as HTMLDivElement
                         projectCard.className = "col s12 m3"
                         projectCard.id = it["alias"].toString()
+
                         val card = document.createElement("div") as HTMLDivElement
                         card.className = "card"
                         card.setAttribute("data-alias", it["alias"].toString())
+
                         val cardContext = document.createElement("div") as HTMLDivElement
                         cardContext.className = "card-content black-text"
+
                         val cardTitle = document.createElement("span") as HTMLSpanElement
                         cardTitle.className = "card-title"
                         cardTitle.innerText = it["name"].toString()
+
                         val alias = document.createElement("p") as HTMLParagraphElement
                         alias.innerText = it["alias"].toString()
+
+                        val deleteElem = document.createElement("a") as HTMLElement
+                        deleteElem.className = "btn-floating btn-small waves-effect waves-light red delete_card"
+                        val deleteChildElem = document.createElement("i") as HTMLElement
+                        deleteChildElem.className = "material-icons"
+                        deleteChildElem.innerText = "clear"
+
+                        deleteElem.appendChild(deleteChildElem)
+
+                        deleteElem.addEventListener("click", fun(event:Event) {
+                            event.stopPropagation()
+                            console.log("click")
+                        })
+
                         val platformContainer = document.createElement("div") as HTMLDivElement
                         platformContainer.className = "platform-container"
+
                         val iosImage = document.createElement("img") as HTMLImageElement
                         iosImage.src = "images/icon-ios.png"
                         iosImage.alt = "iOS"
                         iosImage.width = 24
                         iosImage.height = 24
+
                         val androidImage = document.createElement("img") as HTMLImageElement
                         androidImage.src = "images/icon-android.png"
                         androidImage.alt = "Android"
                         androidImage.width = 24
                         androidImage.height = 24
+
                         val webImage = document.createElement("img") as HTMLImageElement
                         webImage.src = "images/icon-website.png"
                         webImage.alt = "Web"
                         webImage.width = 24
                         webImage.height = 24
+
                         platformContainer.append(iosImage, androidImage, webImage)
-                        cardContext.append(cardTitle, alias, platformContainer)
+                        cardContext.append(cardTitle, alias, deleteElem, platformContainer)
                         card.appendChild(cardContext)
                         projectCard.appendChild(card)
                         divProjects.appendChild(projectCard)
@@ -142,6 +167,7 @@ fun main(args: Array<String>) {
 
             getProject(targetProjectAlias) {
                 addLanguageInputsToPopup(it)
+
                 projectName = it["name"] as String
                 val projectAlias = it["alias"] as String
 
@@ -151,22 +177,29 @@ fun main(args: Array<String>) {
                     languages.add(language["langName"] as String)
                 })
 
-
                 val screens = arrayOf<String>()
-                val screensJson = it["screens"] as Json
-                js("Object").values(screensJson).forEach(fun(screen: String) {
-                    screens[screens.count()] = screen
-                })
+                val screensJson = it["screens"] as? Json
 
-                initScreenAutocompleteList(screens)
+                if (screensJson != null) {
+                    js("Object").values(screensJson).forEach(fun(screen: String) {
+                        screens[screens.count()] = screen
+                    })
+                    initScreenAutocompleteList(screens)
+                }
 
                 var types = arrayOf<String>()
-                val typesJson = it["types"] as Json
-                js("Object").values(typesJson).forEach(fun(type: String) {
-                    types[types.count()] = type
-                })
+                val typesJson = it["types"] as? Json
 
-                initTypeAutocompleteList(types)
+                if (typesJson != null) {
+                    js("Object").values(typesJson).forEach(fun(type: String) {
+                        types[types.count()] = type
+                    })
+
+                    initTypeAutocompleteList(types)
+                }
+
+                console.log("hasav")
+
                 setupDropDown(it)
 
                 if (collectionElement != null) {
@@ -184,7 +217,6 @@ fun main(args: Array<String>) {
                     projectNameAndAlias.append(HProjectName, HProjectAlias)
                     val exportButton = document.createElement("div") as HTMLDivElement
                     exportButton.addClass("export_button")
-                    exportButton.innerHTML = " <!-- Dropdown Trigger -->\n"
                     val dropdownTrigger = document.createElement("a")
                     dropdownTrigger.addClass("dropdown-trigger btn")
                     dropdownTrigger.setAttribute("href", "#")
@@ -220,7 +252,11 @@ fun main(args: Array<String>) {
                     tableScreen.innerText = "Screen"
                     val tableKey = document.createElement("th") as HTMLTableCellElement
                     tableKey.innerText = "Key"
-                    row.append(tableIndex, tableScreen, tableKey)
+
+                    val tableComment = document.createElement("th") as HTMLTableCellElement
+                    tableComment.innerText = "Comment"
+                    row.append(tableIndex, tableScreen, tableKey, tableComment)
+
                     for (language in languages) {
                         val th = document.createElement("th") as HTMLTableCellElement
                         th.innerText = language
@@ -246,6 +282,11 @@ fun main(args: Array<String>) {
                                 tableBody.appendChild(tr)
                             }
                         })
+                    } else {
+                        val emptyContentElem = document.createElement("p")
+                        emptyContentElem.innerHTML = "Localization is empty"
+                        emptyContentElem.className = "empty_data_content"
+                        tableBody.appendChild(emptyContentElem)
                     }
 
                     table.append(tableHead, tableBody)
@@ -255,8 +296,6 @@ fun main(args: Array<String>) {
                     floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
-
-                    addEditingActions()
 
                     setupDropDown(it)
 
@@ -269,30 +308,32 @@ fun main(args: Array<String>) {
 
 private fun setupModal() {
 
+    val confirmationModal = document.getElementById("confirm_modal")
     val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
     val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
     val keyInput = document.getElementById("localization_value") as HTMLInputElement
     val form = document.getElementById("localization_form") as HTMLFormElement
-
-    val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
     val commentInput = document.getElementById("localization_comment") as HTMLInputElement
-
-
-    val elems = document.querySelectorAll(".modal")
+    val modal = document.getElementById("modal1")
+    val mobileSwitchElem = document.getElementById("is_mobile") as HTMLInputElement
+    val generateValuesElem = document.getElementById("generate_values") as HTMLElement
 
     val params = json("onCloseEnd" to fun () {
-        screenNameInput.value = ""
-        typeInput.value =  ""
-        keyInput.value = ""
-        generatedKeyInput.value = " "
-        commentInput.value = ""
 
         form.reset()
+
+        screenNameInput.disabled = false
+        typeInput.disabled = false
+        keyInput.disabled = false
+        commentInput.disabled = false
+        mobileSwitchElem.disabled = false
+        generateValuesElem.removeClass("disabled")
+
+        modal?.removeAttribute("data-mode")
     })
 
-    js("M").Modal.init(elems, params)
-
-
+    js("M").Modal.init(modal, params)
+    js("M").Modal.init(confirmationModal, {})
 
     // Event Listeners
 
@@ -308,6 +349,37 @@ private fun setupModal() {
         generateKey()
     })
 
+    mobileSwitchElem.addEventListener("change", fun(event: Event) {
+        generateKey()
+    })
+
+    generateValuesElem.addEventListener("click", fun(event: Event) {
+        generateKey()
+
+        val generatedBaseValue = keyInput.value
+
+        if (generatedBaseValue.isEmpty()) return
+
+        val normalizedValue = generatedBaseValue.replace("_", " ").capitalize()
+        val elements = document.querySelectorAll("input.validate.language_input")
+
+        for (element in elements.asList()) {
+            val inputElem = element as HTMLInputElement
+            val langKey = inputElem.getAttribute("data-key") as String
+
+            if (langKey == "en") {
+                inputElem.focus()
+                inputElem.value = normalizedValue
+            } else {
+                YandexHelper.translate(langKey, normalizedValue).then {
+                    inputElem.focus()
+                    inputElem.value = it
+                }
+            }
+        }
+    })
+
+
 
     val addProjectElem = document.getElementById("add_project")
     addProjectElem?.addEventListener("click", fun(event:Event) {
@@ -317,17 +389,32 @@ private fun setupModal() {
         val key = keyInput.value.trim('_')
         val comment = commentInput.value
 
-        form.reportValidity()
-        val isValid = form.checkValidity()
-
-        console.log(isValid)
-
-        if (isValid == false) {
+        if (!form.checkValidity()) {
+            form.reportValidity()
             return
         }
 
         val normalizedKey = screenName + "_" + type + "_" + key
         console.log(normalizedKey)
+
+        val mode = modal?.getAttribute("data-mode")
+        if (mode == "editing") {
+
+            val elements = document.querySelectorAll("input.validate.language_input")
+            for (element in elements.asList()) {
+                val inputElem = element as HTMLInputElement
+                val langKey = inputElem.getAttribute("data-key") as String
+                val langValue = inputElem.value
+
+                editLocalization(projectName, screenName, normalizedKey, langKey, langValue)
+            }
+
+            val elem = document.getElementById("modal1")
+            val modal = js("M").Modal.getInstance(elem)
+            modal.close()
+
+            return
+        }
 
         var values = json()
 
@@ -348,30 +435,26 @@ private fun setupModal() {
     })
 }
 
-
-private fun addEditingActions(): Unit {
-//    val elems = document.querySelectorAll("i.small.material-icons.action")
-//    console.log(elems)
-//    for (elem in elems.asList()) {
-//        elem.addEventListener("click", fun(event: Event) {
-////            console.log(elem .getAttribute("data-key"))
-//        })
-//    }
-}
-
-
 private fun generateKey(): Unit {
 
     val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
     val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
     val keyInput = document.getElementById("localization_value") as HTMLInputElement
     val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
+    val mobileSwitch = document.getElementById("is_mobile") as HTMLInputElement
 
     val screenName = screenNameInput.value.trim('_')
     val type = typeInput.value.trim('_')
     val key = keyInput.value.trim('_')
 
-    var generatedKey = screenName
+
+    var generatedKey = String()
+
+    if (mobileSwitch.checked) {
+        generatedKey += "m_"
+    }
+
+    generatedKey += screenName
 
     if (!type.isEmpty()) {
         generatedKey += "_" + type
@@ -383,7 +466,6 @@ private fun generateKey(): Unit {
 
     generatedKeyInput.value = generatedKey
 }
-
 
 private fun setupCopyElement(): Unit {
     val copyElem = document.getElementById("content_copy")
@@ -425,11 +507,14 @@ fun tableRowDataFromScreen(name: String, screen: Json?): Array<TableRowData> {
     if (screen != null) {
         Object().values(screen).forEach(fun(localization: dynamic) {
             val key = localization["key"] as String
-            val values = hashMapOf<String, String>()
+            val comment = localization["comment"] as? String
+            val isMobile = localization["isMobile"] as Boolean
+            val values = mutableMapOf<String, String>()
             Object().values(localization["values"]).forEach(fun(value: dynamic) {
                 values.put(value["lang_key"].toString(), value["lang_value"].toString())
             })
-            array.add(TableRowData(name, key, values))
+
+            array.add(TableRowData(name, key, comment, isMobile, values))
         })
     }
     return array.toTypedArray()
@@ -440,18 +525,26 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     val tableIndex = document.createElement("td")
     tableIndex.addClass("table_index")
     tableIndex.innerHTML = "$index"
+    tableIndex.setAttribute("mobile",  if (tableRowData.isMobile) "true" else "false")
     val tableScreen = document.createElement("td")
     tableScreen.addClass("table_screen")
     tableScreen.innerHTML = tableRowData.screen
     val tableKey = document.createElement("td")
     tableKey.innerHTML = tableRowData.key
-    tr.append(tableIndex, tableScreen, tableKey)
+    val tableComment = document.createElement("td")
+    tableComment.innerHTML = tableRowData.comment.orEmpty()
+
+    tr.append(tableIndex, tableScreen, tableKey, tableComment)
+
+    // Add values
+
     tableRowData.values.forEach {
         val languageValue = it.value
         val td = document.createElement("td")
         td.innerHTML = languageValue
         tr.appendChild(td)
     }
+
     val tdOptions = document.createElement("td")
     tdOptions.addClass("head_options")
 
@@ -490,28 +583,64 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
         val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
         val commentInput = document.getElementById("localization_comment") as HTMLInputElement
         val languageElements = document.querySelectorAll("input.validate.language_input")
+        val mobileSwitchElem = document.getElementById("is_mobile") as HTMLInputElement
+        val generateValuesElem = document.getElementById("generate_values") as HTMLElement
 
         val trElement = editElem.parentElement?.parentElement as HTMLTableRowElement
 
         val screenName = trElement.children[1]?.innerHTML as String
         val key = trElement.children[2]?.innerHTML as String
+        val comment = trElement.children[3]?.innerHTML as? String
+
+        val indexElem = trElement.children[0]
+        console.log(indexElem)
+        val mobileAttribute = indexElem?.getAttribute("mobile") as String
+
+        val isMobile = mobileAttribute == "true"
 
         screenNameInput.value = screenName
-        keyInput.value = key.substringAfterLast("_")
-        typeInput.value = key.substringAfter("_").substringBeforeLast("_")
+
+        val normalizedKey = key.replaceFirst("_m", "")
+
+        keyInput.value = normalizedKey.substringAfterLast("_")
+        typeInput.value = normalizedKey.substringAfter("_").substringBeforeLast("_")
         generatedKeyInput.value = key
+        commentInput.value =  comment.orEmpty()
+        mobileSwitchElem.checked = isMobile
 
-        console.log(trElement.children)
-
-        for (i in 3..trElement.childElementCount-2) {
+        for (i in 4..trElement.childElementCount-2) {
             console.log(i)
-            val languageElement = languageElements[i-3] as HTMLInputElement
+            val languageElement = languageElements[i-4] as HTMLInputElement
             languageElement.value = trElement.children[i]?.innerHTML as String
         }
 
         val modal = document.getElementById("modal1")
+        modal?.setAttribute("data-mode", "editing")
         var instance = js("M").Modal.getInstance(modal)
-        instance.open();
+        instance.open()
+
+
+        screenNameInput.select()
+        typeInput.select()
+        keyInput.select()
+        commentInput.select()
+
+        screenNameInput.className = ""
+        typeInput.className = ""
+        keyInput.className = ""
+
+        screenNameInput.disabled = true
+        typeInput.disabled = true
+        keyInput.disabled = true
+        commentInput.disabled = true
+        mobileSwitchElem.disabled = true
+
+        generateValuesElem.addClass("disabled")
+
+        for (elem in languageElements.asList()) {
+            (elem as HTMLInputElement).focus()
+        }
+
     })
 
     tdOptions.append(deleteElem, editElem)
@@ -541,7 +670,6 @@ fun addLanguageInputsToPopup(json: Json) {
         })
 
         element.innerHTML = innerHtml
-
 
         val elems = document.querySelectorAll("i.material-icons.prefix.value")
         console.log(elems)
@@ -579,15 +707,19 @@ fun addLanguageInputsToPopup(json: Json) {
 class TableRowData {
     var screen: String = ""
     var key: String = ""
-    var values = hashMapOf<String, String>()
-    constructor(screen: String, key: String, values: HashMap<String, String>) {
+    var values = mutableMapOf<String, String>()
+    var comment: String?
+    var isMobile: Boolean = false
+    constructor(screen: String, key: String, comment: String?, isMobile: Boolean, values: MutableMap<String, String>) {
         this.screen = screen
         this.key = key
+        this.comment = comment
+        this.isMobile = isMobile
         this.values = values
     }
 
     override fun toString(): String {
-        return "screen = $screen, key = $key, values = ${values.toString()}"
+        return "screen = $screen, key = $key, comment = $comment, values = ${values.toString()}"
     }
 }
 
