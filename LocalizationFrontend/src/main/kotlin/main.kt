@@ -254,8 +254,6 @@ fun main(args: Array<String>) {
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
 
-                    addEditingActions()
-
                     setupDropDown(it)
 
                 }
@@ -276,7 +274,7 @@ private fun setupModal() {
     val commentInput = document.getElementById("localization_comment") as HTMLInputElement
 
 
-    val elems = document.querySelectorAll(".modal")
+    val modal = document.getElementById("modal1")
 
     val params = json("onCloseEnd" to fun () {
         screenNameInput.value = ""
@@ -285,12 +283,12 @@ private fun setupModal() {
         generatedKeyInput.value = " "
         commentInput.value = ""
 
+        modal?.removeAttribute("data-mode")
+
         form.reset()
     })
 
-    js("M").Modal.init(elems, params)
-
-
+    js("M").Modal.init(modal, params)
 
     // Event Listeners
 
@@ -309,6 +307,8 @@ private fun setupModal() {
 
     val addProjectElem = document.getElementById("add_project")
     addProjectElem?.addEventListener("click", fun(event:Event) {
+
+        console.log(modal?.getAttribute("data-mode"))
 
         val screenName = screenNameInput.value.trim('_')
         val type = typeInput.value.trim('_')
@@ -344,17 +344,6 @@ private fun setupModal() {
         val modal = js("M").Modal.getInstance(elem)
         modal.close()
     })
-}
-
-
-private fun addEditingActions(): Unit {
-//    val elems = document.querySelectorAll("i.small.material-icons.action")
-//    console.log(elems)
-//    for (elem in elems.asList()) {
-//        elem.addEventListener("click", fun(event: Event) {
-////            console.log(elem .getAttribute("data-key"))
-//        })
-//    }
 }
 
 
@@ -501,7 +490,16 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
 
         val modal = document.getElementById("modal1")
         var instance = js("M").Modal.getInstance(modal)
+        modal?.setAttribute("data-mode", "editing")
         instance.open();
+
+        screenNameInput.focus()
+        typeInput.focus()
+        keyInput.focus()
+
+        for (elem in languageElements.asList()) {
+            (elem as HTMLInputElement).focus()
+        }
     })
 
     tdOptions.append(deleteElem, editElem)
@@ -511,6 +509,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
 }
 
 fun addLanguageInputsToPopup(json: Json) {
+
     val element = document.getElementById("localization_input")
     if (element != null) {
         var innerHtml = ""
@@ -602,4 +601,3 @@ external fun saveiOS(project: Json)
 external fun saveAndroid(project: Json)
 external fun saveWeb(project: Json)
 external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, comment: String?)
-external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json)
