@@ -153,18 +153,22 @@ fun main(args: Array<String>) {
 
 
                 val screens = arrayOf<String>()
-                val screensJson = it["screens"] as Json
-                js("Object").values(screensJson).forEach(fun(screen: String) {
-                    screens[screens.count()] = screen
-                })
+                val screensJson = it["screens"] as? Json
+                if (screensJson != null) {
+                    js("Object").values(screensJson).forEach(fun(screen: String) {
+                        screens[screens.count()] = screen
+                    })
+                }
 
                 initScreenAutocompleteList(screens)
 
                 var types = arrayOf<String>()
-                val typesJson = it["types"] as Json
-                js("Object").values(typesJson).forEach(fun(type: String) {
-                    types[types.count()] = type
-                })
+                val typesJson = it["types"] as? Json
+                if (typesJson != null) {
+                    js("Object").values(typesJson).forEach(fun(type: String) {
+                        types[types.count()] = type
+                    })
+                }
 
                 initTypeAutocompleteList(types)
                 setupDropDown(it)
@@ -182,6 +186,7 @@ fun main(args: Array<String>) {
                     val HProjectAlias = document.createElement("h6") as HTMLHeadingElement
                     HProjectAlias.innerText = projectAlias
                     projectNameAndAlias.append(HProjectName, HProjectAlias)
+                    // Export button
                     val exportButton = document.createElement("div") as HTMLDivElement
                     exportButton.addClass("export_button")
                     exportButton.innerHTML = " <!-- Dropdown Trigger -->\n"
@@ -204,6 +209,7 @@ fun main(args: Array<String>) {
                     exportWeb.innerHTML = "<a href=\"#!\" id=\"export_web\">Web</a>"
                     dropdownContent.append(exportiOS, divider, exportAndroid, divider.cloneNode(true), exportWeb)
                     exportButton.append(dropdownTrigger, dropdownContent)
+                    // end of export button
                     headerContainerBase.append(projectNameAndAlias, exportButton)
                     headerContainer.appendChild(headerContainerBase)
 
@@ -249,12 +255,64 @@ fun main(args: Array<String>) {
                     }
 
                     table.append(tableHead, tableBody)
+                    if (screens.count() > 0) {
+                        val comboBox = document.createElement("div") as HTMLDivElement
+                        comboBox.addClass("input-field")
+                        comboBox.addClass("col")
+                        comboBox.addClass("s12")
+                        comboBox.id = "screens_combobox"
+                        val select = document.createElement("select") as HTMLSelectElement
+                        val allOption = document.createElement("option") as HTMLOptionElement
+                        allOption.value = "all"
+                        allOption.text = "All"
+                        allOption.selected = true
+                        select.appendChild(allOption)
+                        screens.forEach {
+                            val option = document.createElement("option") as HTMLOptionElement
+                            option.value = it
+                            option.text = it
+                            select.appendChild(option)
+                            console.log(it)
+                        }
+                        select.onchange = { event ->
+                            tableBody.innerHTML = ""
+                            index = 0
+                            if ((select.selectedOptions[0] as HTMLOptionElement).value != "all") {
+                                filterScreens(projectName, (select.selectedOptions[0] as HTMLOptionElement).value, fun(screen: Json) {
+                                    tableRowDataFromScreen((select.selectedOptions[0] as HTMLOptionElement).value, screen).forEach {
+                                        index++
+                                        val tr = tableRowElementFromTableRowData(it, index)
+                                        tableBody.appendChild(tr)
+                                    }
+                                })
+                            } else {
+                                if (localization != null) {
+                                    Object().values(it["screens"]).forEach(fun(screen: String) {
+                                        val screenLocalization = localization[screen] as? Json
+                                        tableRowDataFromScreen(screen, screenLocalization).forEach {
+                                            index++
+                                            val tr = tableRowElementFromTableRowData(it, index)
+                                            tableBody.appendChild(tr)
+                                        }
+                                    })
+                                }
+                            }
+                        }
+                        val label = document.createElement("label") as HTMLLabelElement
+                        label.innerText = "Filter by screen name"
+                        comboBox.append(select, label)
+                        headerContainerBase.appendChild(comboBox)
+                    }
 
                     val floatButton = document.createElement("div") as HTMLDivElement
                     floatButton.addClass("float_button")
                     floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
+
+                    val elems = document.querySelectorAll("select")
+                    console.log("elems", elems)
+                    js("M").FormSelect.init(elems, {})
 
                     addEditingActions()
 
