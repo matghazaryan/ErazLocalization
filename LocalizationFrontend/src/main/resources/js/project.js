@@ -1,7 +1,7 @@
 const dbRef = firebase.database().ref("projects");
 let localizationKeys = new Set();
 
-function addLocalization(projectName, screenName, type, newKey, valuesMap, comment) {
+function addLocalization(projectName, screenName, type, newKey, valuesMap, isMobile, comment) {
     if (localizationKeys.has(newKey)) {
         alert("Key is already exist");
         return
@@ -57,11 +57,8 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, comme
                 localization = dbRef.child(projectName + '/localization/' + screenName)
             }
 
-            console.log("Localization - ", localization);
-
             localization.once('value')
                 .then(function (snapshot) {
-                    console.log("Snapshot - ", snapshot);
                     let values = [];
                     let newValue = {};
                     let localizatonValues = [];
@@ -82,13 +79,15 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, comme
                         newValue[values.length] = {
                             'key': newKey,
                             'comment': comment,
-                            'values': localizatonValues
+                            'values': localizatonValues,
+                            'isMobile': isMobile
                         };
                     } else {
                         newValue[screenName] = [{
                             'key': newKey,
                             'comment': comment,
-                            'values': localizatonValues
+                            'values': localizatonValues,
+                            'isMobile': isMobile
                         }];
                     }
                     localization.update(newValue);
