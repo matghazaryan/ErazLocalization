@@ -255,6 +255,21 @@ fun editLocalization(name: String, screen: String, key: String, languageCode: St
             })
 }
 
+fun deleteProject(name: String) {
+    dbRef.once(Constants.FIREBASE.contentType.VALUE)
+            .then(fun (snapshot: dynamic) {
+                val newValue = snapshot.toJSON()
+                newValue[name] = null
+                dbRef.update(newValue, fun (error: Any?) {
+                    if (error != null) {
+                        console.log("success")
+                    } else {
+                        console.log(error)
+                    }
+                })
+            })
+}
+
 @JsName("existKeyInProject")
 fun existKeyInProject(key: String): Boolean {
     return localizationKeys.has(key)
