@@ -236,15 +236,17 @@ fun main(args: Array<String>) {
                     tableHead.appendChild(row)
                     val tableBody = document.createElement("tbody")
                     var index = 0
-                    val localization = it["localization"] as Json
-                    Object().values(it["screens"]).forEach(fun(screen: String) {
-                        val screenLocalization = localization[screen] as? Json
-                        tableRowDataFromScreen(screen, screenLocalization).forEach {
-                            index++
-                            val tr = tableRowElementFromTableRowData(it, index)
-                            tableBody.appendChild(tr)
-                        }
-                    })
+                    val localization = it["localization"] as? Json
+                    if (localization != null) {
+                        Object().values(it["screens"]).forEach(fun(screen: String) {
+                            val screenLocalization = localization[screen] as? Json
+                            tableRowDataFromScreen(screen, screenLocalization).forEach {
+                                index++
+                                val tr = tableRowElementFromTableRowData(it, index)
+                                tableBody.appendChild(tr)
+                            }
+                        })
+                    }
 
                     table.append(tableHead, tableBody)
 
@@ -460,7 +462,15 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     deleteElem.innerText = "delete"
 
     deleteElem.addEventListener("click", fun(event:Event) {
-        removeRow(projectName, tableRowData.screen, tableRowData.key)
+        val modal = document.getElementById("confirm_modal")
+        var instance = js("M").Modal.getInstance(modal)
+        instance.open()
+        val delete = document.getElementById("confirm_modal_delete")
+        delete?.addEventListener("click", fun (e: Event) {
+            console.log(projectName, tableRowData.screen, tableRowData.key)
+            removeRow(projectName, tableRowData.screen, tableRowData.key)
+
+        })
         console.log("delete")
     })
 

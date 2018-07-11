@@ -49,7 +49,7 @@ fun getProject(name: String, listener: (Json) -> Unit) {
         if (localizations != null) {
             Object().values(localizations).forEach(fun(value: dynamic) {
                 Object().values(value).forEach(fun(valu: Json) {
-                    localizationKeys.push(valu["key"].toString())
+                    localizationKeys.add(valu["key"].toString())
                 })
             })
         }
@@ -215,12 +215,17 @@ fun removeRow(projectName: String, screen: String, key: String) {
                         json[i.toString()] = json[(i + 1).toString()]
                     }
                     json[(values.length - 1).toString()] = null
-                    childRef.update(json)
                 } else {
                     json["0"] = null
-                    childRef.update(json)
                     removeValueFromChildArray(screen, "screens", projectName)
                 }
+                childRef.update(json, fun (error: Any?) {
+                    if (error != null) {
+                        alert(error.toString())
+                    } else {
+                        localizationKeys.delete(key)
+                    }
+                })
             })
 }
 
@@ -252,7 +257,7 @@ fun editLocalization(name: String, screen: String, key: String, languageCode: St
 
 @JsName("existKeyInProject")
 fun existKeyInProject(key: String): Boolean {
-    return localizationKeys.includes(key)
+    return localizationKeys.has(key)
 }
 
 fun createJson(): dynamic {

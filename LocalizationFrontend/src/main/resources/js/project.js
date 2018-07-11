@@ -1,8 +1,8 @@
 const dbRef = firebase.database().ref("projects");
-let localizationKeys = [];
+let localizationKeys = new Set();
 
 function addLocalization(projectName, screenName, type, newKey, valuesMap, comment) {
-    if (localizationKeys.includes(newKey)) {
+    if (localizationKeys.has(newKey)) {
         alert("Key is already exist");
         return
     }
