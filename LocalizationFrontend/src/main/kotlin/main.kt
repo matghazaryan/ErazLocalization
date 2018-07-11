@@ -236,15 +236,17 @@ fun main(args: Array<String>) {
                     tableHead.appendChild(row)
                     val tableBody = document.createElement("tbody")
                     var index = 0
-                    val localization = it["localization"] as Json
-                    Object().values(it["screens"]).forEach(fun(screen: String) {
-                        val screenLocalization = localization[screen] as? Json
-                        tableRowDataFromScreen(screen, screenLocalization).forEach {
-                            index++
-                            val tr = tableRowElementFromTableRowData(it, index)
-                            tableBody.appendChild(tr)
-                        }
-                    })
+                    val localization = it["localization"] as? Json
+                    if (localization != null) {
+                        Object().values(it["screens"]).forEach(fun(screen: String) {
+                            val screenLocalization = localization[screen] as? Json
+                            tableRowDataFromScreen(screen, screenLocalization).forEach {
+                                index++
+                                val tr = tableRowElementFromTableRowData(it, index)
+                                tableBody.appendChild(tr)
+                            }
+                        })
+                    }
 
                     table.append(tableHead, tableBody)
 
@@ -253,6 +255,8 @@ fun main(args: Array<String>) {
                     floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
+
+                    addEditingActions()
 
                     setupDropDown(it)
 
@@ -274,7 +278,7 @@ private fun setupModal() {
     val commentInput = document.getElementById("localization_comment") as HTMLInputElement
 
 
-    val modal = document.getElementById("modal1")
+    val elems = document.querySelectorAll(".modal")
 
     val params = json("onCloseEnd" to fun () {
         screenNameInput.value = ""
@@ -283,12 +287,12 @@ private fun setupModal() {
         generatedKeyInput.value = " "
         commentInput.value = ""
 
-        modal?.removeAttribute("data-mode")
-
         form.reset()
     })
 
-    js("M").Modal.init(modal, params)
+    js("M").Modal.init(elems, params)
+
+
 
     // Event Listeners
 
@@ -307,8 +311,6 @@ private fun setupModal() {
 
     val addProjectElem = document.getElementById("add_project")
     addProjectElem?.addEventListener("click", fun(event:Event) {
-
-        console.log(modal?.getAttribute("data-mode"))
 
         val screenName = screenNameInput.value.trim('_')
         val type = typeInput.value.trim('_')
@@ -337,13 +339,24 @@ private fun setupModal() {
             values.set(key, value)
         }
 
-        console.log(values)
-        addLocalization(projectName, screenName, type, normalizedKey, values, comment)
+        val isMobile = (document.getElementById("is_mobile") as HTMLInputElement).checked
+        addLocalization(projectName, screenName, type, normalizedKey, values, isMobile, comment)
 
         val elem = document.getElementById("modal1")
         val modal = js("M").Modal.getInstance(elem)
         modal.close()
     })
+}
+
+
+private fun addEditingActions(): Unit {
+//    val elems = document.querySelectorAll("i.small.material-icons.action")
+//    console.log(elems)
+//    for (elem in elems.asList()) {
+//        elem.addEventListener("click", fun(event: Event) {
+////            console.log(elem .getAttribute("data-key"))
+//        })
+//    }
 }
 
 
@@ -449,7 +462,15 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     deleteElem.innerText = "delete"
 
     deleteElem.addEventListener("click", fun(event:Event) {
-        removeRow(projectName, tableRowData.screen, tableRowData.key)
+        val modal = document.getElementById("confirm_modal")
+        var instance = js("M").Modal.getInstance(modal)
+        instance.open()
+        val delete = document.getElementById("confirm_modal_delete")
+        delete?.addEventListener("click", fun (e: Event) {
+            console.log(projectName, tableRowData.screen, tableRowData.key)
+            removeRow(projectName, tableRowData.screen, tableRowData.key)
+
+        })
         console.log("delete")
     })
 
@@ -490,16 +511,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
 
         val modal = document.getElementById("modal1")
         var instance = js("M").Modal.getInstance(modal)
-        modal?.setAttribute("data-mode", "editing")
         instance.open();
-
-        screenNameInput.focus()
-        typeInput.focus()
-        keyInput.focus()
-
-        for (elem in languageElements.asList()) {
-            (elem as HTMLInputElement).focus()
-        }
     })
 
     tdOptions.append(deleteElem, editElem)
@@ -509,7 +521,6 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
 }
 
 fun addLanguageInputsToPopup(json: Json) {
-
     val element = document.getElementById("localization_input")
     if (element != null) {
         var innerHtml = ""
@@ -600,4 +611,5 @@ external fun initTypeAutocompleteList(types: Array<String>)
 external fun saveiOS(project: Json)
 external fun saveAndroid(project: Json)
 external fun saveWeb(project: Json)
-external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, comment: String?)
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile:Boolean, comment: String?)
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean)

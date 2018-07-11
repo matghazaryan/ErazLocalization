@@ -8,12 +8,14 @@ function saveiOS(project) {
         let lproject = lprojects[lprojectName];
         lproject.forEach(function (pair) {
             for (let first in pair) {
-                fileText += '"' + first.toString() + '" = "' + pair[first].key.toString() + '";';
+                if (pair[first].isMobile === true) {
+                    fileText += '"' + first.toString() + '" = "' + pair[first].key.toString() + '";';
+                    if (!pair[first].comment.toString().isEmpty) {
+                        fileText += "// " + pair[first].comment.toString();
+                    }
+                    fileText += "\n";
+                }
             }
-            if (!pair[first].comment.toString().isEmpty) {
-                fileText += "// " + pair[first].comment.toString();
-            }
-            fileText += "\n";
         });
         currentProj.file(fileName, fileText);
     }
@@ -48,7 +50,8 @@ function createCstomJson(project) {
                     return value1.lang_key === projectName;
                 });
                 proj[value.key] = {"key" : object.lang_value,
-                                   "comment": value.comment};
+                                   "comment": value.comment,
+                                   "isMobile": value.isMobile};
             });
             projects.push(proj);
         });
@@ -66,11 +69,13 @@ function saveAndroid(project) {
         let proj = projects[projectName];
         proj.forEach(function (pair) {
             for (let first in pair) {
-                xml += "\t<string name=\"" + first.toString() + '\">' + pair[first].key.toString() + "</string>";
-                if (typeof pair[first].comment !== 'undefined') {
-                    xml += "<!--" + pair[first].comment.toString() + "-->"
+                if (pair[first].isMobile === true) {
+                    xml += "\t<string name=\"" + first.toString() + '\">' + pair[first].key.toString() + "</string>";
+                    if (typeof pair[first].comment !== 'undefined') {
+                        xml += "<!--" + pair[first].comment.toString() + "-->"
+                    }
+                    xml += "\n"
                 }
-                xml += "\n"
             }
         });
         xml += "</resources>";

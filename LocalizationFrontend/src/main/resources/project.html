@@ -59,7 +59,7 @@
                 <div class="switch">
                     <label>
                         Mobile
-                        <input type="checkbox">
+                        <input type="checkbox" id="is_mobile">
                         <span class="lever"></span>
                     </label>
                 </div>
@@ -114,6 +114,17 @@
                 <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
                 <a href="#!" class="waves-effect waves-green btn-flat" id="add_project">Save</a>
             </div>
+        </div>
+    </div>
+    <!-- Modal Structure -->
+    <div id="confirm_modal" class="modal">
+        <div class="modal-content">
+            <h4>Delete row</h4>
+            <p>Are You shure to delete this row, after delete you can't restore it</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat" style="color: crimson" id="confirm_modal_delete">Delete</a>
         </div>
     </div>
 </main>
