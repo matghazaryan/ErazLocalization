@@ -333,6 +333,58 @@ fun main(args: Array<String>) {
                         label.innerText = "Filter by screen name"
                         comboBox.append(select, label)
                         headerContainerBase.appendChild(comboBox)
+
+                        val searchField = document.createElement("div")
+                        searchField.addClass("input-field")
+                        searchField.addClass("col")
+                        searchField.addClass("s6")
+                        val icon = document.createElement("i")
+                        icon.addClass("material-icons")
+                        icon.addClass("prefix")
+                        icon.innerHTML = "search"
+                        val input = document.createElement("input") as HTMLInputElement
+                        input.addClass("validate")
+                        input.id = "icon_search"
+                        val placeholder = document.createElement("label") as HTMLLabelElement
+                        placeholder.htmlFor = "icon_search"
+                        placeholder.innerText = "Search"
+                        searchField.append(icon, input, placeholder)
+                        input.addEventListener("input", fun (e: Event) {
+                            val project = it
+                            val searchText = input.value
+                            tableBody.innerHTML = ""
+                            index = 0
+                            if (searchText.isEmpty()) {
+                                if (localization != null) {
+                                    Object().values(it["screens"]).forEach(fun(screen: String) {
+                                        val screenLocalization = localization[screen] as? Json
+                                        tableRowDataFromScreen(screen, screenLocalization).forEach {
+                                            index++
+                                            val tr = tableRowElementFromTableRowData(it, index)
+                                            tableBody.appendChild(tr)
+                                        }
+                                    })
+                                }
+                            } else {
+
+                            }
+                            if (localization != null) {
+
+                                if ((select.selectedOptions[0] as HTMLOptionElement).value != "all") {
+                                    filterScreens(projectName, (select.selectedOptions[0] as HTMLOptionElement).value, fun(screen: Json) {
+                                        tableRowDataFromScreen((select.selectedOptions[0] as HTMLOptionElement).value, screen).forEach {
+                                            index++
+                                            val tr = tableRowElementFromTableRowData(it, index)
+                                            tableBody.appendChild(tr)
+                                        }
+                                    })
+                                } else {
+
+                                }
+                            }
+
+                        })
+                        headerContainerBase.appendChild(searchField)
                     }
 
                     val floatButton = document.createElement("div") as HTMLDivElement
@@ -340,9 +392,9 @@ fun main(args: Array<String>) {
                     floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
-                    val elems = document.querySelectorAll("select")
-                    console.log("elems", elems)
+                    var elems = document.querySelectorAll("select")
                     js("M").FormSelect.init(elems, {})
+                    js("M").updateTextFields()
                     setupDropDown(it)
 
                 }
