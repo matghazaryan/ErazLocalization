@@ -17,6 +17,12 @@ nav.top-nav {
 }
 
 
+.empty_data_content{
+    text-align: center;
+    margin-top: 20%;
+    font-weight: 600;
+}
+
 .card-title {
     color: rgba(0,0,0,0.87);
     font-size: 20px;
@@ -161,6 +167,21 @@ i.small {
 
 table tr i { opacity:0; float:right }
 table tr:hover i { opacity:1 }
+
+
+.delete_card {
+    float: right;
+    margin-top: -95px;
+    margin-right: -30px;
+}
+
+.delete_card {
+    opacity: 0;
+}
+
+.card:hover .delete_card {
+    opacity: 1;
+}
 
 #clipboard_input {
     max-height: 0px;
