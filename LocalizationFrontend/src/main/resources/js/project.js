@@ -80,14 +80,16 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, isMob
                             'key': newKey,
                             'comment': comment,
                             'values': localizatonValues,
-                            'isMobile': isMobile
+                            'isMobile': isMobile,
+                            'isEditing': false
                         };
                     } else {
                         newValue[screenName] = [{
                             'key': newKey,
                             'comment': comment,
                             'values': localizatonValues,
-                            'isMobile': isMobile
+                            'isMobile': isMobile,
+                            'isEditing': false
                         }];
                     }
                     localization.update(newValue);

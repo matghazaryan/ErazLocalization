@@ -305,7 +305,7 @@ fun main(args: Array<String>) {
                             select.appendChild(option)
                             console.log(it)
                         }
-                        select.onchange = { event ->
+                        select.onchange = { _ ->
                             tableBody.innerHTML = ""
                             index = 0
                             if ((select.selectedOptions[0] as HTMLOptionElement).value != "all") {
@@ -366,8 +366,8 @@ private fun setupModal() {
 
     val params = json("onCloseEnd" to fun () {
 
+        setEditing(false, projectName, screenNameInput.value, keyInput.value)
         form.reset()
-
         screenNameInput.disabled = false
         typeInput.disabled = false
         keyInput.disabled = false
@@ -559,8 +559,7 @@ fun tableRowDataFromScreen(name: String, screen: Json?): Array<TableRowData> {
             Object().values(localization["values"]).forEach(fun(value: dynamic) {
                 values.put(value["lang_key"].toString(), value["lang_value"].toString())
             })
-
-            array.add(TableRowData(name, key, comment, isMobile, values))
+            array.add(TableRowData(name, key, comment, isMobile, values, localization.isEditing as Boolean))
         })
     }
     return array.toTypedArray()
@@ -599,6 +598,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     deleteElem.addClass("material-icons")
     deleteElem.addClass("action")
     deleteElem.innerText = "delete"
+    deleteElem.hidden = tableRowData.isEditing
 
     deleteElem.addEventListener("click", fun(event:Event) {
         val modal = document.getElementById("confirm_modal")
@@ -619,6 +619,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     editElem.addClass("material-icons")
     editElem.addClass("action")
     editElem.innerText = "edit"
+    editElem.hidden = tableRowData.isEditing
 
     editElem.addEventListener("click", fun(event:Event) {
         console.log("edit")
@@ -663,6 +664,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
         val modal = document.getElementById("modal1")
         modal?.setAttribute("data-mode", "editing")
         var instance = js("M").Modal.getInstance(modal)
+        setEditing(true, projectName, screenName, key)
         instance.open()
 
 
@@ -756,12 +758,14 @@ class TableRowData {
     var values = mutableMapOf<String, String>()
     var comment: String?
     var isMobile: Boolean = false
-    constructor(screen: String, key: String, comment: String?, isMobile: Boolean, values: MutableMap<String, String>) {
+    var isEditing = false
+    constructor(screen: String, key: String, comment: String?, isMobile: Boolean, values: MutableMap<String, String>, isEditing: Boolean) {
         this.screen = screen
         this.key = key
         this.comment = comment
         this.isMobile = isMobile
         this.values = values
+        this.isEditing = isEditing
     }
 
     override fun toString(): String {

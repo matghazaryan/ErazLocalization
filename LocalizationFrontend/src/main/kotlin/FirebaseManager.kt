@@ -117,7 +117,20 @@ fun filterScreens(projectName: String, name: String, callBack: (Json) -> Unit) {
             })
 }
 
-
+fun setEditing(editing: Boolean, projectName: String, screen: String, key: String) {
+    val childRef = dbRef.child("$projectName/localization/$screen")
+    childRef.once(Constants.FIREBASE.contentType.VALUE)
+            .then(fun (snapshot: dynamic) {
+                if (jsTypeOf(snapshot) != "undefined" && snapshot.toJSON() != null) {
+                    var index = ""
+                    Object().values(snapshot.toJSON()).find(fun (el: dynamic, idx: dynamic): Boolean {
+                        index = idx.toString()
+                        return el.key == key
+                    })
+                    childRef.child("$index/isEditing").set(editing)
+                }
+            })
+}
 
 
 /// Helpers
