@@ -7,12 +7,20 @@ external var localizationKeys: dynamic
 
 fun createProject(name: String, alias: String, languages: Array<Pair<String, String>>): String {
     val json = createJson()
+    val types = "\"types\": {" +
+            "\"0\": \"label\"," +
+            "\"1\": \"button\"," +
+            "\"2\": \"alert\"," +
+            "\"3\": \"error\"," +
+            "\"4\": \"placeholder\"," +
+            "\"5\": \"warning\"" +
+            "}"
     json[name] = JSON.parse<Json>("{ \"name\" : \"$name\"," +
-            "\"alias\" : \"$alias\" }")
+            "\"alias\" : \"$alias\", $types }")
     dbRef.update(json, fun(error: Any?) {
         if (error == null) {
             addLanguages(name, languages).then {
-                window.location.href = "project.html?alias=${name}"
+                window.location.href = "project.html?alias=$name"
 //                alert(it)
             }
         } else {
