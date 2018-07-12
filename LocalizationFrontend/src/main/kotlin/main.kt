@@ -431,7 +431,9 @@ private fun setupModal() {
 
     val params = json("onCloseEnd" to fun () {
 
-        setEditing(false, projectName, screenNameInput.value, keyInput.value)
+        if (screenNameInput.value.isNotEmpty()) {
+            setEditing(false, projectName, screenNameInput.value, keyInput.value)
+        }
         form.reset()
         screenNameInput.disabled = false
         typeInput.disabled = false

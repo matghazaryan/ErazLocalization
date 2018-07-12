@@ -64,6 +64,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
         childRef.once(Constants.FIREBASE.contentType.VALUE)
                 .then(fun(snapshot: dynamic) {
                     val snapshotArray = js("Object").values(snapshot.toJSON())
+                    console.log("as")
                     var needsToUpdate = false
                     for (language in languages) {
                         val element = json("langCode" to language.first,
@@ -80,6 +81,40 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                         }
                     }
                     if (needsToUpdate) {
+                        val localizationRef = dbRef.child("$name/localization")
+                        localizationRef.once(Constants.FIREBASE.contentType.VALUE)
+                                .then(fun (snapshot: dynamic) {
+                                    val json = snapshot.toJSON()
+                                    if (json != null) {
+                                        Object().keys(json).forEach(fun (key: String) {
+                                            val objects = json[key]
+                                            console.log("objects" , objects)
+                                            Object().values(objects).forEach(fun(singleObject: dynamic, idx: dynamic) {
+                                                val values = singleObject["values"]
+                                                console.log("singleObject", singleObject)
+                                                var nextIndex = Object().keys(values).length
+                                                val firstValue = values["0"]
+                                                val langKey = firstValue["lang_key"]
+                                                val langValue = firstValue["lang_value"]
+                                                val promises = arrayListOf<Promise<String>>()
+                                                languages.forEach {
+                                                    val promise = YandexHelper.translate(it.first, langValue, false, langKey)
+                                                    promises.add(promise)
+                                                }
+                                                Promise.all(promises.toTypedArray()).then {
+                                                    it.forEach { translations ->
+                                                        values[nextIndex.toString()] = json("lang_key" to languages[it.indexOf(translations)].first,
+                                                                "lang_value" to translations)
+                                                        nextIndex += 1
+                                                    }
+                                                    singleObject["values"] = values
+                                                    console.log("singleObject", singleObject)
+                                                    localizationRef.child("$key/${idx.toString()}").set(singleObject)
+                                                }
+                                            })
+                                        })
+                                    }
+                                })
                         childRef.set(snapshotArray, fun(error: Any?) {
                             if (error == null) {
                                 success("success")
@@ -283,6 +318,7 @@ fun deleteProject(name: String) {
                 })
             })
 }
+
 
 @JsName("existKeyInProject")
 fun existKeyInProject(key: String): Boolean {
