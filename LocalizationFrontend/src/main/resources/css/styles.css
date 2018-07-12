@@ -226,3 +226,34 @@ thead, tbody tr {
 table {
     width:100%;
 }
+
+
+tr {
+    background: transparent;
+    /*padding: 10px 0;*/
+    position: relative;
+    -webkit-transition: all 1s linear;
+    -moz-transition: all 1s linear;
+    -o-transition: all 1s linear;
+    transition: all 1s linear;
+    -webkit-transition-delay: 2s;
+    /*left:0;*/
+}
+
+tr.background_yellow {
+    background: yellow;
+    /*left: 50px;*/
+}
+
+
+
+/*.background_yellow {*/
+    /*background-color: yellow;*/
+    /*transition: 1s;*/
+/*}*/
+
+.background_transparent {
+    background-color: transparent;
+    transition: 1s;
+}
+
