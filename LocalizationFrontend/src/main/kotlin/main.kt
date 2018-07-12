@@ -16,50 +16,80 @@ var dbRef = firebase.database().ref().child("projects")
 var projectName = String()
 
 fun main(args: Array<String>) {
+
     if (window.location.href.contains("index.html", false)) {
 
         window.onload = {
+
             var elems = document.querySelectorAll(".modal")
-            val params = json("onCloseEnd" to fun () {
-                (document.getElementById("project_name") as HTMLInputElement).value = ""
-                (document.getElementById("project_alias") as HTMLInputElement).value = ""
+            val params = json("onCloseEnd" to fun() {
+                val createProjectForm = document.getElementById("create_project_form") as HTMLFormElement
+                createProjectForm.reset()
             })
+
             js("M").Modal.init(elems, params)
 
             YandexHelper.supportedLanguages().then {
                 val select = document.createElement("select") as HTMLSelectElement
                 select.multiple = true
                 val index = it.keys.indexOf("en")
+
                 it.forEach {
                     val option = document.createElement("option") as HTMLOptionElement
                     option.value = it.key
                     option.text = it.value
                     select.appendChild(option)
                 }
-                select.options.selectedIndex = index
+
+                val enOption = select.options[index] as HTMLOptionElement
+                enOption.selected = true
+                enOption.disabled = true
+
+
                 val div = document.getElementById("languages-combobox") as HTMLDivElement
                 div.insertBefore(select, div.firstChild)
                 elems = document.querySelectorAll("select")
                 js("M").FormSelect.init(elems, {})
+
                 val addButton = document.getElementById("add_project")
                 addButton?.addEventListener("click", {
+
+                    val createProjectForm = document.getElementById("create_project_form") as HTMLFormElement
+
+                    if (!createProjectForm.checkValidity()) {
+                        createProjectForm.reportValidity()
+                        return@addEventListener
+                    }
+
                     val projectName = (document.getElementById("project_name") as HTMLInputElement).value
                     val projectAlias = (document.getElementById("project_alias") as HTMLInputElement).value
                     val languages = arrayListOf<Pair<String, String>>()
+
                     for (i in 0..(select.selectedOptions.length - 1)) {
                         val option = select.selectedOptions[i] as HTMLOptionElement
                         languages.add(option.value to option.text)
                     }
-                    if (projectAlias.isNotEmpty() && projectName.isNotEmpty() && languages.isNotEmpty()) {
-                        createProject(projectName, projectAlias, languages.toTypedArray())
-                    }
+
+
+                    createProject(projectName, projectAlias, languages.toTypedArray())
+                    val modalElem = document.getElementById("modal1")
+                    val modal = js("M").Modal.getInstance(modalElem)
+                    modal.close()
                 })
             }
 
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
 
-                
+                divProjects.innerHTML = "<div class=\"col s12 m3\">\n" +
+                        "                    <div class=\"card modal-trigger\" data-alias=\"new-project\" data-target=\"modal1\" id=\"new-project\">\n" +
+                        "                        <div class=\"card-container\">\n" +
+                        "                            <img src=\"images/icon-plus.png\" alt=\"Add Project\" height=\"36\" width=\"36\">\n" +
+                        "                            <p>Add Project</p>\n" +
+                        "                        </div>\n" +
+                        "                    </div>\n" +
+                        "                </div>"
+
                 // Projects
                 it.forEach {
                     var projectCard = document.getElementById(it["alias"].toString())
@@ -71,7 +101,7 @@ fun main(args: Array<String>) {
 
                         val card = document.createElement("div") as HTMLDivElement
                         card.className = "card"
-                        card.setAttribute("data-alias", it["alias"].toString())
+                        card.setAttribute("data-alias", it["name"].toString())
 
                         val cardContext = document.createElement("div") as HTMLDivElement
                         cardContext.className = "card-content black-text"
@@ -93,10 +123,15 @@ fun main(args: Array<String>) {
 
                         deleteElem.appendChild(deleteChildElem)
 
-                        deleteElem.addEventListener("click", fun(event:Event) {
+                        deleteElem.addEventListener("click", fun(event: Event) {
                             event.stopPropagation()
                             val projectName = deleteElem.getAttribute("data-project_name") as String
+
                             deleteProject(projectName)
+
+                            val elem = document.getElementById(projectCard.id) as HTMLDivElement
+                            val parent = elem.parentElement as HTMLDivElement
+                            parent.removeChild(elem)
 
                         })
 
@@ -153,7 +188,7 @@ fun main(args: Array<String>) {
         }
     } else if (window.location.href.contains("project.html")) {
 
-        window.onload  = {
+        window.onload = {
             setupModal()
             setupCopyElement()
         }
@@ -173,7 +208,7 @@ fun main(args: Array<String>) {
 
                 val languages = arrayListOf<String>()
                 val languagesJson = it["languages"] as Json
-                js("Object").values(languagesJson).forEach(fun (language: dynamic) {
+                js("Object").values(languagesJson).forEach(fun(language: dynamic) {
                     languages.add(language["langName"] as String)
                 })
 
@@ -232,7 +267,7 @@ fun main(args: Array<String>) {
                     dropdownContent.append(exportiOS, divider, exportAndroid, divider.cloneNode(true), exportWeb)
                     exportButton.append(dropdownTrigger, dropdownContent)
                     // end of export button
-                    headerContainerBase.append(projectNameAndAlias, exportButton)
+                    headerContainerBase.append(projectNameAndAlias)
                     headerContainer.appendChild(headerContainerBase)
 
                     //Table Data
@@ -307,7 +342,8 @@ fun main(args: Array<String>) {
                         val label = document.createElement("label") as HTMLLabelElement
                         label.innerText = "Filter by screen name"
                         comboBox.append(select, label)
-                        headerContainerBase.appendChild(comboBox)
+
+
 
                         val searchField = document.createElement("div")
                         searchField.addClass("input-field")
@@ -324,8 +360,12 @@ fun main(args: Array<String>) {
                         placeholder.htmlFor = "icon_search"
                         placeholder.innerText = "Search"
                         searchField.append(icon, input, placeholder)
+
                         headerContainerBase.appendChild(searchField)
-                        input.addEventListener("input", fun (e: Event) {
+                        headerContainerBase.appendChild(comboBox)
+                        headerContainerBase.appendChild(exportButton)
+
+                        input.addEventListener("input", fun(e: Event) {
                             select.selectedIndex = 2
                             val searchText = input.value
                             tableBody.innerHTML = ""
@@ -345,16 +385,16 @@ fun main(args: Array<String>) {
                                 // first Object().values(localization) is an array of screens localizations
                                 // val screen is the values of screens localizations
                                 val localizationsOfscreens = arrayOf<Json>()
-                                Object().keys(localization).forEach(fun (key: String) {
+                                Object().keys(localization).forEach(fun(key: String) {
                                     val elem = localization?.get(key) as Json
-                                    Object().values(elem).forEach(fun (el :Json) {
+                                    Object().values(elem).forEach(fun(el: Json) {
                                         localizationsOfscreens.set(localizationsOfscreens.count(), json(key to el))
                                     })
                                 })
                                 val predicate: ((Json)) -> Boolean = {
                                     var contains = false
                                     val values = Object().values(it)[0]["values"] as Json
-                                    Object().values(values).forEach(fun (el: Json) {
+                                    Object().values(values).forEach(fun(el: Json) {
                                         val x = el["lang_value"].toString().contains(searchText, true)
                                         if (x) {
                                             contains = x
@@ -429,7 +469,7 @@ private fun setupModal() {
     val mobileSwitchElem = document.getElementById("is_mobile") as HTMLInputElement
     val generateValuesElem = document.getElementById("generate_values") as HTMLElement
 
-    val params = json("onCloseEnd" to fun () {
+    val params = json("onCloseEnd" to fun() {
 
         if (screenNameInput.value.isNotEmpty()) {
             setEditing(false, projectName, screenNameInput.value, keyInput.value)
@@ -493,9 +533,8 @@ private fun setupModal() {
     })
 
 
-
     val addProjectElem = document.getElementById("add_project")
-    addProjectElem?.addEventListener("click", fun(event:Event) {
+    addProjectElem?.addEventListener("click", fun(event: Event) {
 
         val screenName = screenNameInput.value.trim('_')
         val type = typeInput.value.trim('_')
@@ -595,7 +634,7 @@ private fun setupCopyElement(): Unit {
 private fun setupDropDown(json: Json) {
 
     js("var elems = document.querySelectorAll('.dropdown-trigger');" +
-             "var instances = M.Dropdown.init(elems, {});"
+            "var instances = M.Dropdown.init(elems, {});"
     )
 
     val exportiOSElement = document.getElementById("export_ios")
@@ -637,7 +676,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     val tableIndex = document.createElement("td")
     tableIndex.addClass("table_index")
     tableIndex.innerHTML = "$index"
-    tableIndex.setAttribute("mobile",  if (tableRowData.isMobile) "true" else "false")
+    tableIndex.setAttribute("mobile", if (tableRowData.isMobile) "true" else "false")
     val tableScreen = document.createElement("td")
     tableScreen.addClass("table_screen")
     tableScreen.innerHTML = tableRowData.screen
@@ -667,12 +706,12 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     deleteElem.innerText = "delete"
     deleteElem.hidden = tableRowData.isEditing
 
-    deleteElem.addEventListener("click", fun(event:Event) {
+    deleteElem.addEventListener("click", fun(event: Event) {
         val modal = document.getElementById("confirm_modal")
         var instance = js("M").Modal.getInstance(modal)
         instance.open()
         val delete = document.getElementById("confirm_modal_delete")
-        delete?.addEventListener("click", fun (e: Event) {
+        delete?.addEventListener("click", fun(e: Event) {
             console.log(projectName, tableRowData.screen, tableRowData.key)
             removeRow(projectName, tableRowData.screen, tableRowData.key)
 
@@ -688,7 +727,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     editElem.innerText = "edit"
     editElem.hidden = tableRowData.isEditing
 
-    editElem.addEventListener("click", fun(event:Event) {
+    editElem.addEventListener("click", fun(event: Event) {
         console.log("edit")
 
         val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
@@ -719,19 +758,22 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
         keyInput.value = normalizedKey.substringAfterLast("_")
         typeInput.value = normalizedKey.substringAfter("_").substringBeforeLast("_")
         generatedKeyInput.value = key
-        commentInput.value =  comment.orEmpty()
+        commentInput.value = comment.orEmpty()
         mobileSwitchElem.checked = isMobile
 
-        for (i in 4..trElement.childElementCount-2) {
-            console.log(i)
-            val languageElement = languageElements[i-4] as HTMLInputElement
-            languageElement.value = trElement.children[i]?.innerHTML as String
+
+        var element: HTMLInputElement
+        var value: String
+
+        for (i in 4..trElement.childElementCount - 2) {
+            val element = languageElements[i - 4] as HTMLInputElement
+            val value = trElement.children[i]?.innerHTML as String
+            element.value = value
         }
 
         val modal = document.getElementById("modal1")
         modal?.setAttribute("data-mode", "editing")
         var instance = js("M").Modal.getInstance(modal)
-        setEditing(true, projectName, screenName, key)
         instance.open()
 
 
@@ -756,21 +798,35 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
             (elem as HTMLInputElement).focus()
         }
 
+        setEditing(true, projectName, screenName, key)
+
     })
 
     tdOptions.append(deleteElem, editElem)
 
     tr.appendChild(tdOptions)
+
+    tr.className = if (tableRowData.isEditing) "background_yellow"  else ""
+
+
     return tr
 }
 
 fun addLanguageInputsToPopup(json: Json) {
+
+
+    val elems = document.querySelectorAll("i.material-icons.prefix.value")
+
+    if (elems.length > 0) {
+        return
+    }
+
     val element = document.getElementById("localization_input")
     if (element != null) {
         var innerHtml = ""
 
         val languagesJson = json["languages"] as Json
-        js("Object").values(languagesJson).forEach(fun (language: dynamic) {
+        js("Object").values(languagesJson).forEach(fun(language: dynamic) {
             val languageName = language["langName"] as String
             val languageCode = language["langCode"] as String
 
@@ -787,7 +843,6 @@ fun addLanguageInputsToPopup(json: Json) {
         element.innerHTML = innerHtml
 
         val elems = document.querySelectorAll("i.material-icons.prefix.value")
-        console.log(elems)
 
         elems.asList().forEach {
             it.addEventListener("click", fun(event: Event) {
@@ -826,6 +881,7 @@ class TableRowData {
     var comment: String?
     var isMobile: Boolean = false
     var isEditing = false
+
     constructor(screen: String, key: String, comment: String?, isMobile: Boolean, values: MutableMap<String, String>, isEditing: Boolean) {
         this.screen = screen
         this.key = key
@@ -846,7 +902,7 @@ class TableRowData {
 fun loadJSON(callBack: (HashMap<String, String>) -> Unit) {
     val json = js("langs")
     val map = hashMapOf<String, String>()
-    js("Object").keys(json).forEach(fun (key: String) {
+    js("Object").keys(json).forEach(fun(key: String) {
         map[key] = json[key] as String
     })
     callBack(map)
@@ -860,5 +916,5 @@ external fun initTypeAutocompleteList(types: Array<String>)
 external fun saveiOS(project: Json)
 external fun saveAndroid(project: Json)
 external fun saveWeb(project: Json)
-external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile:Boolean, comment: String?)
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean, comment: String?)
 external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean)

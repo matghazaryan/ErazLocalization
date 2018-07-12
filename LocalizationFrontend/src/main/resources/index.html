@@ -67,16 +67,16 @@
         <div class="modal-content">
             <h5>New Project</h5>
             <div class="row">
-                <form class="col s12">
+                <form class="col s12" id="create_project_form">
                     <div class="row">
                         <div class="input-field col s12">
-                            <input id="project_name" type="text" class="validate">
+                            <input id="project_name" type="text" pattern="[a-z|A-Z]{3,}" required class="validate" title="Please use only letters">
                             <label for="project_name">Project Name</label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="input-field col s12">
-                            <input id="project_alias" type="text" class="validate">
+                            <input id="project_alias" type="text" class="validate" pattern="[a-z|A-Z]{3,}"required title="Please use only letters">
                             <label for="project_alias">Alias</label>
                         </div>
                     </div>
@@ -90,7 +90,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <a href="#!" class="modal-close waves-effect waves-green btn-flat" id="add_project">Add</a>
+            <a href="#!" class="waves-effect waves-green btn-flat" id="add_project">Add</a>
         </div>
     </div>
 </main>
@@ -99,6 +99,7 @@
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <script type="text/javascript" src="Dependencies/FileSaver.js"></script>
 <script type="text/javascript" src="Dependencies/JSZip/dist/jszip.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
 <script src="Dependencies/Extract.js"></script>
 </body>
 </html>

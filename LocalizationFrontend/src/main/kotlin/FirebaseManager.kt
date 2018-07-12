@@ -1,3 +1,4 @@
+import kotlin.browser.window
 import kotlin.js.Json
 import kotlin.js.Promise
 import kotlin.js.json
@@ -11,10 +12,11 @@ fun createProject(name: String, alias: String, languages: Array<Pair<String, Str
     dbRef.update(json, fun(error: Any?) {
         if (error == null) {
             addLanguages(name, languages).then {
-                alert(it)
+                window.location.href = "project.html?alias=${name}"
+//                alert(it)
             }
         } else {
-            alert("error")
+//            alert("error")
         }
     })
     return "success"
@@ -46,11 +48,23 @@ fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
 fun getProject(name: String, listener: (Json) -> Unit) {
     val childRef = dbRef.child(name)
     childRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
+        val projectJson = snapshot.toJSON()
+
+//        if (projectJson == null) {
+//            alert("Project json is null")
+//            return
+//        }
+
+//        if (!projectJson.hasOwnProperty("localization")) {
+//            alert("Localization key is empty in project json")
+//            return
+//        }
+
         val localizations = snapshot.toJSON()["localization"]
         if (localizations != null) {
             Object().values(localizations).forEach(fun(value: dynamic) {
-                Object().values(value).forEach(fun(valu: Json) {
-                    localizationKeys.add(valu["key"].toString())
+                Object().values(value).forEach(fun(value: Json) {
+                    localizationKeys.add(value["key"].toString())
                 })
             })
         }

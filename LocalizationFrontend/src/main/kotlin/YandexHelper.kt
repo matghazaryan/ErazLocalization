@@ -54,9 +54,9 @@ interface YandexHelper {
             return detectedLang
         }
 
-        private val supportedLanguages = hashMapOf<String, String>()
+        private val supportedLanguages = mutableMapOf<String, String>()
 
-        fun supportedLanguages(ui: String = "en"): Promise<HashMap<String, String>> {
+        fun supportedLanguages(ui: String = "en"): Promise<Map<String, String>> {
             return Promise { success, reject ->
                 if (supportedLanguages.isNotEmpty()) {
                     success(supportedLanguages)
@@ -77,6 +77,8 @@ interface YandexHelper {
                     Object().keys(langs).forEach(fun(element: dynamic) {
                         supportedLanguages[element.toString()] = langs[element].toString()
                     })
+
+
                     success(supportedLanguages)
                 }
                 req.send()
