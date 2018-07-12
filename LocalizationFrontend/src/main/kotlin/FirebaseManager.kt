@@ -283,17 +283,13 @@ fun editLocalization(name: String, screen: String, key: String, languageCode: St
             })
 }
 
-fun deleteProject(name: String) {
+fun deleteProject(name: String, completion: (error: Any?) -> Unit) {
     dbRef.once(Constants.FIREBASE.contentType.VALUE)
             .then(fun (snapshot: dynamic) {
                 val newValue = snapshot.toJSON()
                 newValue[name] = null
                 dbRef.update(newValue, fun (error: Any?) {
-                    if (error != null) {
-                        console.log("success")
-                    } else {
-                        console.log(error)
-                    }
+                    completion(error)
                 })
             })
 }

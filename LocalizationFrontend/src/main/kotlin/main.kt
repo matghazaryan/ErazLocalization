@@ -25,6 +25,18 @@ fun main(args: Array<String>) {
             val params = json("onCloseEnd" to fun() {
                 val createProjectForm = document.getElementById("create_project_form") as HTMLFormElement
                 createProjectForm.reset()
+
+                val select = document.createElement("select") as HTMLSelectElement
+
+                var index = 0
+                for (i in 0..select.options.asList().count()-1) {
+                    val _optionElement = select.options[i] as HTMLOptionElement
+                    if (_optionElement.value == "en") {
+                        _optionElement.selected = true
+                        index = i
+                        break
+                    }
+                }
             })
 
             js("M").Modal.init(elems, params)
@@ -82,7 +94,7 @@ fun main(args: Array<String>) {
                 val divProjects = document.getElementById("row") as HTMLDivElement
 
                 divProjects.innerHTML = "<div class=\"col s12 m3\">\n" +
-                        "                    <div class=\"card modal-trigger\" data-alias=\"new-project\" data-target=\"modal1\" id=\"new-project\">\n" +
+                        "                    <div class=\"card\" data-alias=\"new-project\" data-target=\"modal1\" id=\"new-project\">\n" +
                         "                        <div class=\"card-container\">\n" +
                         "                            <img src=\"images/icon-plus.png\" alt=\"Add Project\" height=\"36\" width=\"36\">\n" +
                         "                            <p>Add Project</p>\n" +
@@ -111,10 +123,14 @@ fun main(args: Array<String>) {
                         cardTitle.innerText = it["name"].toString()
 
                         val alias = document.createElement("p") as HTMLParagraphElement
-                        alias.innerText = it["alias"].toString()
+                        val projectAlias = it["alias"].toString()
+                        alias.innerText = projectAlias
+
+                        var actionsEditElem = document.createElement("div") as HTMLDivElement
+                        actionsEditElem.className = "actions"
 
                         val deleteElem = document.createElement("a") as HTMLElement
-                        deleteElem.className = "btn-floating btn-small waves-effect waves-light red delete_card"
+                        deleteElem.className = "btn-floating btn-small waves-effect waves-light red"
                         val projectName = it["name"].toString()
                         deleteElem.setAttribute("data-project_name", projectName)
                         val deleteChildElem = document.createElement("i") as HTMLElement
@@ -123,16 +139,59 @@ fun main(args: Array<String>) {
 
                         deleteElem.appendChild(deleteChildElem)
 
+                        val editElem = document.createElement("a") as HTMLElement
+                        editElem.className = "btn-floating btn-small waves-effect waves-light light-blue edit_card"
+                        editElem.setAttribute("data-project_name", projectName)
+                        val editChildElem = document.createElement("i") as HTMLElement
+                        editChildElem.className = "material-icons"
+                        editChildElem.innerText = "edit"
+
+                        editElem.addEventListener("click", fun(event: Event){
+                            event.stopPropagation()
+
+                            val headerElem = document.getElementById("add_project_header") as HTMLElement
+                            headerElem.innerText = "Edit Project"
+
+                            val projectNameInput = document.getElementById("project_name") as HTMLInputElement
+                            projectNameInput.value = projectName
+
+                            val projectAliasInput = document.getElementById("project_alias") as HTMLInputElement
+                            projectAliasInput.value = projectAlias
+
+                            projectAliasInput.className = ""
+                            projectNameInput.className = ""
+
+
+                            val modalElem = document.getElementById("modal1")
+                            val modal = js("M").Modal.getInstance(modalElem)
+                            modal.open()
+
+                            projectNameInput.focus()
+                            projectAliasInput.focus()
+
+                            projectNameInput.disabled = true
+                            projectAliasInput.disabled = true
+
+                        })
+
+                        editElem.appendChild(editChildElem)
+
+                        actionsEditElem.appendChild(editElem)
+                        actionsEditElem.appendChild(deleteElem)
+
                         deleteElem.addEventListener("click", fun(event: Event) {
                             event.stopPropagation()
                             val projectName = deleteElem.getAttribute("data-project_name") as String
 
-                            deleteProject(projectName)
-
-                            val elem = document.getElementById(projectCard.id) as HTMLDivElement
-                            val parent = elem.parentElement as HTMLDivElement
-                            parent.removeChild(elem)
-
+                            deleteProject(projectName) {
+                                if (it != null) {
+                                    alert("error")
+                                } else {
+                                    val elem = document.getElementById(projectCard.id) as HTMLDivElement
+                                    val parent = elem.parentElement as HTMLDivElement
+                                    val removedChild = parent.removeChild(elem)
+                                }
+                            }
                         })
 
                         val platformContainer = document.createElement("div") as HTMLDivElement
@@ -157,7 +216,7 @@ fun main(args: Array<String>) {
                         webImage.height = 24
 
                         platformContainer.append(iosImage, androidImage, webImage)
-                        cardContext.append(cardTitle, alias, deleteElem, platformContainer)
+                        cardContext.append(cardTitle, alias, actionsEditElem, platformContainer)
                         card.appendChild(cardContext)
                         projectCard.appendChild(card)
                         divProjects.appendChild(projectCard)
@@ -180,6 +239,23 @@ fun main(args: Array<String>) {
                             val projectAlias = cardElement.getAttribute("data-alias")
                             if (projectAlias != "new-project") {
                                 window.location.href = "./project.html?alias=${projectAlias}"
+                            } else {
+                                // show modal
+
+                                val headerElem = document.getElementById("add_project_header") as HTMLElement
+                                headerElem.innerText = "New Project"
+
+                                val projectNameInput = document.getElementById("project_name") as HTMLInputElement
+                                projectNameInput.className = "validate"
+                                projectNameInput.disabled = false
+
+                                val projectAliasInput = document.getElementById("project_alias") as HTMLInputElement
+                                projectAliasInput.className = "validate"
+                                projectAliasInput.disabled = false
+
+                                val modalElem = document.getElementById("modal1")
+                                val modal = js("M").Modal.getInstance(modalElem)
+                                modal.open()
                             }
                         }
                     })
