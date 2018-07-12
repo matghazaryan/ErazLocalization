@@ -58,12 +58,8 @@ fun main(args: Array<String>) {
 
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
-                while (divProjects.childElementCount > 1) {
-                    val lastChild = divProjects.lastChild
-                    if (lastChild != null) {
-                        divProjects.removeChild(lastChild)
-                    }
-                }
+
+                
                 // Projects
                 it.forEach {
                     var projectCard = document.getElementById(it["alias"].toString())
@@ -89,6 +85,8 @@ fun main(args: Array<String>) {
 
                         val deleteElem = document.createElement("a") as HTMLElement
                         deleteElem.className = "btn-floating btn-small waves-effect waves-light red delete_card"
+                        val projectName = it["name"].toString()
+                        deleteElem.setAttribute("data-project_name", projectName)
                         val deleteChildElem = document.createElement("i") as HTMLElement
                         deleteChildElem.className = "material-icons"
                         deleteChildElem.innerText = "clear"
@@ -97,7 +95,9 @@ fun main(args: Array<String>) {
 
                         deleteElem.addEventListener("click", fun(event:Event) {
                             event.stopPropagation()
-                            console.log("click")
+                            val projectName = deleteElem.getAttribute("data-project_name") as String
+                            deleteProject(projectName)
+
                         })
 
                         val platformContainer = document.createElement("div") as HTMLDivElement
