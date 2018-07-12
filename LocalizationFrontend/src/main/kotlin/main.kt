@@ -320,9 +320,78 @@ fun main(args: Array<String>) {
                             option.value = it
                             option.text = it
                             select.appendChild(option)
-                            console.log(it)
                         }
+                        val label = document.createElement("label") as HTMLLabelElement
+                        label.innerText = "Filter by screen name"
+                        comboBox.append(select, label)
+                        headerContainerBase.appendChild(comboBox)
+
+                        val searchField = document.createElement("div")
+                        searchField.addClass("input-field")
+                        searchField.addClass("col")
+                        searchField.addClass("s6")
+                        val icon = document.createElement("i")
+                        icon.addClass("material-icons")
+                        icon.addClass("prefix")
+                        icon.innerHTML = "search"
+                        val input = document.createElement("input") as HTMLInputElement
+                        input.addClass("validate")
+                        input.id = "icon_search"
+                        val placeholder = document.createElement("label") as HTMLLabelElement
+                        placeholder.htmlFor = "icon_search"
+                        placeholder.innerText = "Search"
+                        searchField.append(icon, input, placeholder)
+                        headerContainerBase.appendChild(searchField)
+                        input.addEventListener("input", fun (e: Event) {
+                            select.selectedIndex = 2
+                            val searchText = input.value
+                            tableBody.innerHTML = ""
+                            index = 0
+                            if (searchText.isEmpty()) {
+                                if (localization != null) {
+                                    Object().values(it["screens"]).forEach(fun(screen: String) {
+                                        val screenLocalization = localization[screen] as? Json
+                                        tableRowDataFromScreen(screen, screenLocalization).forEach {
+                                            index++
+                                            val tr = tableRowElementFromTableRowData(it, index)
+                                            tableBody.appendChild(tr)
+                                        }
+                                    })
+                                }
+                            } else {
+                                // first Object().values(localization) is an array of screens localizations
+                                // val screen is the values of screens localizations
+                                val localizationsOfscreens = arrayOf<Json>()
+                                Object().keys(localization).forEach(fun (key: String) {
+                                    val elem = localization?.get(key) as Json
+                                    Object().values(elem).forEach(fun (el :Json) {
+                                        localizationsOfscreens.set(localizationsOfscreens.count(), json(key to el))
+                                    })
+                                })
+                                val predicate: ((Json)) -> Boolean = {
+                                    var contains = false
+                                    val values = Object().values(it)[0]["values"] as Json
+                                    Object().values(values).forEach(fun (el: Json) {
+                                        val x = el["lang_value"].toString().contains(searchText, true)
+                                        if (x) {
+                                            contains = x
+                                        }
+                                    })
+                                    contains
+                                }
+                                val filteredScreens = localizationsOfscreens.filter(predicate)
+                                filteredScreens.forEach {
+                                    val screenName = Object().keys(it)[0].toString()
+                                    tableRowDataFromScreen(screenName, it).forEach {
+                                        index++
+                                        val tr = tableRowElementFromTableRowData(it, index)
+                                        tableBody.appendChild(tr)
+                                    }
+                                }
+                            }
+                        })
                         select.onchange = { _ ->
+                            input.value = ""
                             tableBody.innerHTML = ""
                             index = 0
                             if ((select.selectedOptions[0] as HTMLOptionElement).value != "all") {
@@ -346,10 +415,6 @@ fun main(args: Array<String>) {
                                 }
                             }
                         }
-                        val label = document.createElement("label") as HTMLLabelElement
-                        label.innerText = "Filter by screen name"
-                        comboBox.append(select, label)
-                        headerContainerBase.appendChild(comboBox)
                     }
 
                     val floatButton = document.createElement("div") as HTMLDivElement
@@ -357,9 +422,9 @@ fun main(args: Array<String>) {
                     floatButton.innerHTML = "<a class=\"btn-floating waves-effect waves-light btn modal-trigger\" href=\"#modal1\"><i class=\"material-icons\">add</i></a>\n"
                     collectionElement.innerHTML = ""
                     collectionElement.append(headerContainer, table, floatButton)
-                    val elems = document.querySelectorAll("select")
-                    console.log("elems", elems)
+                    var elems = document.querySelectorAll("select")
                     js("M").FormSelect.init(elems, {})
+                    js("M").updateTextFields()
                     setupDropDown(it)
 
                 }
