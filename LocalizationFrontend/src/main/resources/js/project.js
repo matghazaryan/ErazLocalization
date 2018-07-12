@@ -4,7 +4,7 @@ let localizationKeys = new Set();
 function addLocalization(projectName, screenName, type, newKey, valuesMap, isMobile, comment) {
     if (localizationKeys.has(newKey)) {
         alert("Key is already exist");
-        return
+        return false;
     }
     let includeScrean = false;
     let includeType = false;
@@ -95,6 +95,7 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, isMob
                     localization.update(newValue);
                 })
         });
+    return true;
 }
 
 

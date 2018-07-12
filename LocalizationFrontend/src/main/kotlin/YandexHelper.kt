@@ -79,7 +79,9 @@ interface YandexHelper {
                     })
 
 
-                    success(supportedLanguages)
+                    success(supportedLanguages.toList().sortedBy {
+                        it.second
+                    }.toMap())
                 }
                 req.send()
             }

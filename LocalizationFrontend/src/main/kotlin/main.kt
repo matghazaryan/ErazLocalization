@@ -547,8 +547,9 @@ private fun setupModal() {
 
     val params = json("onCloseEnd" to fun() {
 
-        setEditing(false, projectName, screenNameInput.value, keyInput.value)
-
+        if (screenNameInput.value.isNotEmpty()) {
+            setEditing(false, projectName, screenNameInput.value, keyInput.value)
+        }
         form.reset()
         screenNameInput.disabled = false
         typeInput.disabled = false
@@ -654,11 +655,12 @@ private fun setupModal() {
         }
 
         val isMobile = (document.getElementById("is_mobile") as HTMLInputElement).checked
-        addLocalization(projectName, screenName, type, normalizedKey, values, isMobile, comment)
+        if (addLocalization(projectName, screenName, type, normalizedKey, values, isMobile, comment)) {
 
-        val elem = document.getElementById("modal1")
-        val modal = js("M").Modal.getInstance(elem)
-        modal.close()
+            val elem = document.getElementById("modal1")
+            val modal = js("M").Modal.getInstance(elem)
+            modal.close()
+        }
     })
 }
 
@@ -991,5 +993,5 @@ external fun initTypeAutocompleteList(types: Array<String>)
 external fun saveiOS(project: Json)
 external fun saveAndroid(project: Json)
 external fun saveWeb(project: Json)
-external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean, comment: String?)
-external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean)
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean, comment: String?): Boolean
+external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean): Boolean
