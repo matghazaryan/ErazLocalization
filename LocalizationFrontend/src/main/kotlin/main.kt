@@ -16,6 +16,7 @@ var dbRef = firebase.database().ref().child("projects")
 var projectName = String()
 
 fun main(args: Array<String>) {
+
     if (window.location.href.contains("index.html", false)) {
 
         window.onload = {
@@ -41,8 +42,20 @@ fun main(args: Array<String>) {
                 div.insertBefore(select, div.firstChild)
                 elems = document.querySelectorAll("select")
                 js("M").FormSelect.init(elems, {})
+
+                val selectInput = document.getElementsByClassName("select-dropdown.dropdown-trigger") as HTMLInputElement
+                console.log(selectInput)
+
                 val addButton = document.getElementById("add_project")
                 addButton?.addEventListener("click", {
+
+                    val createProjectrForm = document.getElementById("create_project_form") as HTMLFormElement
+
+                    if (!createProjectrForm.checkValidity()) {
+                        createProjectrForm.reportValidity()
+                        return@addEventListener
+                    }
+
                     val projectName = (document.getElementById("project_name") as HTMLInputElement).value
                     val projectAlias = (document.getElementById("project_alias") as HTMLInputElement).value
                     val languages = arrayListOf<Pair<String, String>>()
@@ -50,8 +63,12 @@ fun main(args: Array<String>) {
                         val option = select.selectedOptions[i] as HTMLOptionElement
                         languages.add(option.value to option.text)
                     }
-                    if (projectAlias.isNotEmpty() && projectName.isNotEmpty() && languages.isNotEmpty()) {
+
+                    if (languages.isNotEmpty()) {
                         createProject(projectName, projectAlias, languages.toTypedArray())
+                        val modalElem = document.getElementById("modal1")
+                        val modal = js("M").Modal.getInstance(modalElem)
+                        modal.close()
                     }
                 })
             }
