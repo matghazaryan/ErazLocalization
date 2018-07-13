@@ -38,13 +38,19 @@ fun addTypes(name: String, vararg  names: String) {
     addStrings("types", name, *names)
 }
 
-fun getProjects(completion: (Array<HashMap<String, String>>) -> Unit) {
-    val projects = ArrayList<HashMap<String, String>>()
+fun getProjects(completion: (Array<HashMap<String, Any>>) -> Unit) {
+    val projects = ArrayList<HashMap<String, Any>>()
     dbRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
         snapshot.forEach(fun (child: dynamic) {
-            val element = hashMapOf<String, String>(
-                    "name" to child.toJSON()["name"].toString(),
-                    "alias" to child.toJSON()["alias"].toString()
+            val project = child.toJSON()
+            val languages = arrayOf<String>()
+            Object().values(project["languages"]).forEach(fun (lang: dynamic, idx: dynamic) {
+                languages.set(languages.count(), lang["langCode"].toString())
+            })
+            val element = hashMapOf<String, Any>(
+                    "name" to project["name"].toString(),
+                    "alias" to project["alias"].toString(),
+                    "languages" to languages
             )
             projects.add(element)
         })
@@ -87,6 +93,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                 .then(fun(snapshot: dynamic) {
                     val snapshotArray = js("Object").values(snapshot.toJSON())
                     console.log("as")
+                    val addedLanguages = arrayListOf<Pair<String,String>>()
                     var needsToUpdate = false
                     for (language in languages) {
                         val element = json("langCode" to language.first,
@@ -99,10 +106,14 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                         })
                         if (!contains) {
                             snapshotArray.push(element)
+                            addedLanguages.add(language)
                             needsToUpdate = true
                         }
                     }
                     if (needsToUpdate) {
+
+
+
                         val localizationRef = dbRef.child("$name/localization")
                         localizationRef.once(Constants.FIREBASE.contentType.VALUE)
                                 .then(fun (snapshot: dynamic) {
@@ -119,7 +130,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                                                 val langKey = firstValue["lang_key"]
                                                 val langValue = firstValue["lang_value"]
                                                 val promises = arrayListOf<Promise<String>>()
-                                                languages.forEach {
+                                                addedLanguages.forEach {
                                                     val promise = YandexHelper.translate(it.first, langValue, false, langKey)
                                                     promises.add(promise)
                                                 }

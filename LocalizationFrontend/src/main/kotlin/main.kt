@@ -25,11 +25,13 @@ fun main(args: Array<String>) {
             val params = json("onCloseEnd" to fun() {
                 val createProjectForm = document.getElementById("create_project_form") as HTMLFormElement
                 createProjectForm.reset()
+                val select = document.getElementById("language_select") as HTMLSelectElement
 
-                val select = document.createElement("select") as HTMLSelectElement
+                val modalElem = document.getElementById("modal1")
+                modalElem?.removeAttribute("mode")
 
                 var index = 0
-                for (i in 0..select.options.asList().count()-1) {
+                for (i in 0 until select.options.asList().count()) {
                     val _optionElement = select.options[i] as HTMLOptionElement
                     if (_optionElement.value == "en") {
                         _optionElement.selected = true
@@ -41,54 +43,7 @@ fun main(args: Array<String>) {
 
             js("M").Modal.init(elems, params)
 
-            YandexHelper.supportedLanguages().then {
-                val select = document.createElement("select") as HTMLSelectElement
-                select.multiple = true
-                val index = it.keys.indexOf("en")
-
-                it.forEach {
-                    val option = document.createElement("option") as HTMLOptionElement
-                    option.value = it.key
-                    option.text = it.value
-                    select.appendChild(option)
-                }
-
-                val enOption = select.options[index] as HTMLOptionElement
-                enOption.selected = true
-                enOption.disabled = true
-
-
-                val div = document.getElementById("languages-combobox") as HTMLDivElement
-                div.insertBefore(select, div.firstChild)
-                elems = document.querySelectorAll("select")
-                js("M").FormSelect.init(elems, {})
-
-                val addButton = document.getElementById("add_project")
-                addButton?.addEventListener("click", {
-
-                    val createProjectForm = document.getElementById("create_project_form") as HTMLFormElement
-
-                    if (!createProjectForm.checkValidity()) {
-                        createProjectForm.reportValidity()
-                        return@addEventListener
-                    }
-
-                    val projectName = (document.getElementById("project_name") as HTMLInputElement).value
-                    val projectAlias = (document.getElementById("project_alias") as HTMLInputElement).value
-                    val languages = arrayListOf<Pair<String, String>>()
-
-                    for (i in 0..(select.selectedOptions.length - 1)) {
-                        val option = select.selectedOptions[i] as HTMLOptionElement
-                        languages.add(option.value to option.text)
-                    }
-
-
-                    createProject(projectName, projectAlias, languages.toTypedArray())
-                    val modalElem = document.getElementById("modal1")
-                    val modal = js("M").Modal.getInstance(modalElem)
-                    modal.close()
-                })
-            }
+            setupLanguageOptions()
 
             getProjects {
                 val divProjects = document.getElementById("row") as HTMLDivElement
@@ -154,20 +109,40 @@ fun main(args: Array<String>) {
 
                             val projectNameInput = document.getElementById("project_name") as HTMLInputElement
                             projectNameInput.value = projectName
+                            projectNameInput.className = ""
 
                             val projectAliasInput = document.getElementById("project_alias") as HTMLInputElement
                             projectAliasInput.value = projectAlias
-
                             projectAliasInput.className = ""
-                            projectNameInput.className = ""
 
+                            val select = document.getElementById("language_select") as HTMLSelectElement
+
+                            val languages = it["languages"] as Array<String>
+                            console.log(languages)
+                            for (language in languages) {
+                                for (option in select.options.asList()) {
+                                    val optionElem = option as HTMLOptionElement
+
+                                    // Prevent selected option
+                                    if (optionElem.selected) {
+                                        continue
+                                    }
+
+                                    optionElem.selected = (optionElem.value == language) || (optionElem.value == "en")
+                                    console.log(option)
+                                }
+                            }
+
+                            val elems = document.querySelectorAll("select")
+                            js("M").FormSelect.init(elems, {})
 
                             val modalElem = document.getElementById("modal1")
+                            modalElem?.setAttribute("mode", "editing")
                             val modal = js("M").Modal.getInstance(modalElem)
                             modal.open()
 
-                            projectNameInput.focus()
-                            projectAliasInput.focus()
+                            projectNameInput.select()
+                            projectAliasInput.select()
 
                             projectNameInput.disabled = true
                             projectAliasInput.disabled = true
@@ -362,6 +337,8 @@ fun main(args: Array<String>) {
 
                     val tableComment = document.createElement("th") as HTMLTableCellElement
                     tableComment.innerText = "Comment"
+                    tableComment.hidden = true
+                    row.append(tableIndex, tableScreen, tableKey)
                     row.append(tableIndex, tableScreen, tableKey, tableComment)
 
                     for (language in languages) {
@@ -418,8 +395,6 @@ fun main(args: Array<String>) {
                         val label = document.createElement("label") as HTMLLabelElement
                         label.innerText = "Filter by screen name"
                         comboBox.append(select, label)
-
-
 
                         val searchField = document.createElement("div")
                         searchField.addClass("input-field")
@@ -557,6 +532,9 @@ private fun setupModal() {
         commentInput.disabled = false
         mobileSwitchElem.disabled = false
         generateValuesElem.removeClass("disabled")
+
+        val addLocalizationHeading = document.getElementById("add_localization_heading") as HTMLElement
+        addLocalizationHeading.innerText = "Add Localization"
 
         modal?.removeAttribute("data-mode")
     })
@@ -759,8 +737,10 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     tableScreen.innerHTML = tableRowData.screen
     val tableKey = document.createElement("td")
     tableKey.innerHTML = tableRowData.key
-    val tableComment = document.createElement("td")
+
+    val tableComment = document.createElement("td") as HTMLElement
     tableComment.innerHTML = tableRowData.comment.orEmpty()
+    tableComment.hidden = true
 
     tr.append(tableIndex, tableScreen, tableKey, tableComment)
 
@@ -815,6 +795,9 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
         val languageElements = document.querySelectorAll("input.validate.language_input")
         val mobileSwitchElem = document.getElementById("is_mobile") as HTMLInputElement
         val generateValuesElem = document.getElementById("generate_values") as HTMLElement
+        val addLocalizationHeading = document.getElementById("add_localization_heading") as HTMLElement
+
+        addLocalizationHeading.innerText = "Edit Localization"
 
         val trElement = editElem.parentElement?.parentElement as HTMLTableRowElement
 
@@ -951,6 +934,71 @@ fun addLanguageInputsToPopup(json: Json) {
     }
 }
 
+fun setupLanguageOptions() {
+
+    YandexHelper.supportedLanguages().then {
+        val select = document.createElement("select") as HTMLSelectElement
+        select.id = "language_select"
+        select.multiple = true
+        val index = it.keys.indexOf("en")
+
+        it.forEach {
+            val option = document.createElement("option") as HTMLOptionElement
+            option.value = it.key
+            option.text = it.value
+            select.appendChild(option)
+        }
+
+        val enOption = select.options[index] as HTMLOptionElement
+        enOption.selected = true
+        enOption.disabled = true
+
+        val div = document.getElementById("languages-combobox") as HTMLDivElement
+        div.insertBefore(select, div.firstChild)
+        val elems = document.querySelectorAll("select")
+        js("M").FormSelect.init(elems, {})
+
+        setupAddProjectButton(select)
+    }
+}
+
+
+fun setupAddProjectButton(select: HTMLSelectElement) {
+
+    val addButton = document.getElementById("add_project")
+    addButton?.addEventListener("click", {
+
+        val modalElem = document.getElementById("modal1")
+        val mode = modalElem?.getAttribute("mode")
+
+        val createProjectForm = document.getElementById("create_project_form") as HTMLFormElement
+
+        if (!createProjectForm.checkValidity()) {
+            createProjectForm.reportValidity()
+            return@addEventListener
+        }
+
+        val projectName = (document.getElementById("project_name") as HTMLInputElement).value
+        val projectAlias = (document.getElementById("project_alias") as HTMLInputElement).value
+        val languages = arrayListOf<Pair<String, String>>()
+
+        for (i in 0..(select.selectedOptions.length - 1)) {
+            val option = select.selectedOptions[i] as HTMLOptionElement
+            languages.add(option.value to option.text)
+        }
+
+        if (mode == "editing") {
+            addLanguages(projectName, languages.toTypedArray())
+        } else {
+            createProject(projectName, projectAlias, languages.toTypedArray())
+        }
+
+        val modal = js("M").Modal.getInstance(modalElem)
+        modal.close()
+    })
+}
+
+
 class TableRowData {
     var screen: String = ""
     var key: String = ""
@@ -994,4 +1042,3 @@ external fun saveiOS(project: Json)
 external fun saveAndroid(project: Json)
 external fun saveWeb(project: Json)
 external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean, comment: String?): Boolean
-external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean): Boolean

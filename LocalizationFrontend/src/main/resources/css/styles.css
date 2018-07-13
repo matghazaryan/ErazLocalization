@@ -23,6 +23,10 @@ nav.top-nav {
     font-weight: 600;
 }
 
+.modal.modal-fixed-footer {
+    width: 45%;
+}
+
 .card-title {
     color: rgba(0,0,0,0.87);
     font-size: 20px;
@@ -113,14 +117,15 @@ table {
     margin-top: 10px;
 }
 
-.modal.modal-fixed-footer {
-    height: 70%;
-    padding: 0;
-}
+/*.modal.modal-fixed-footer {*/
+    /*height: 90%;*/
+    /*padding: 0;*/
+/*}*/
 
-.modal {
-    width: 35%;
-}
+/*.modal {*/
+    /*width: 55%;*/
+/*}*/
+
 .export_button {
     margin-right: 15px;
 }
