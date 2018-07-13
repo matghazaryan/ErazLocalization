@@ -30,6 +30,17 @@ fun main(args: Array<String>) {
                 val modalElem = document.getElementById("modal1")
                 modalElem?.removeAttribute("mode")
 
+                val headerElem = document.getElementById("add_project_header") as HTMLElement
+                headerElem.innerText = "New Project"
+
+                val projectNameInput = document.getElementById("project_name") as HTMLInputElement
+                projectNameInput.className = "validate"
+                projectNameInput.disabled = false
+
+                val projectAliasInput = document.getElementById("project_alias") as HTMLInputElement
+                projectAliasInput.className = "validate"
+                projectAliasInput.disabled = false
+
                 var index = 0
                 for (i in 0 until select.options.asList().count()) {
                     val _optionElement = select.options[i] as HTMLOptionElement
@@ -141,10 +152,12 @@ fun main(args: Array<String>) {
                             val modal = js("M").Modal.getInstance(modalElem)
                             modal.open()
 
-                            projectNameInput.select()
-                            projectAliasInput.select()
 
+
+                            projectNameInput.focus()
                             projectNameInput.disabled = true
+
+                            projectAliasInput.focus()
                             projectAliasInput.disabled = true
 
                         })
@@ -216,18 +229,6 @@ fun main(args: Array<String>) {
                                 window.location.href = "./project.html?alias=${projectAlias}"
                             } else {
                                 // show modal
-
-                                val headerElem = document.getElementById("add_project_header") as HTMLElement
-                                headerElem.innerText = "New Project"
-
-                                val projectNameInput = document.getElementById("project_name") as HTMLInputElement
-                                projectNameInput.className = "validate"
-                                projectNameInput.disabled = false
-
-                                val projectAliasInput = document.getElementById("project_alias") as HTMLInputElement
-                                projectAliasInput.className = "validate"
-                                projectAliasInput.disabled = false
-
                                 val modalElem = document.getElementById("modal1")
                                 val modal = js("M").Modal.getInstance(modalElem)
                                 modal.open()
@@ -399,12 +400,6 @@ fun main(args: Array<String>) {
 
                         comboBox.append(select)
 
-
-//                        <div class="input-field col s6">
-//                        <i class="material-icons prefix">account_circle</i>
-//                        <input id="icon_prefix" type="text" class="validate">
-//                        <label for="icon_prefix">First Name</label>
-//                        </div>
 
                         // Search field
                         val searchField = document.createElement("div")
