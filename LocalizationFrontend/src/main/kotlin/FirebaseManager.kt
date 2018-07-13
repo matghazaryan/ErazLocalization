@@ -92,7 +92,6 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
         childRef.once(Constants.FIREBASE.contentType.VALUE)
                 .then(fun(snapshot: dynamic) {
                     val snapshotArray = js("Object").values(snapshot.toJSON())
-                    console.log("as")
                     val addedLanguages = arrayListOf<Pair<String,String>>()
                     var needsToUpdate = false
                     for (language in languages) {
@@ -111,9 +110,6 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                         }
                     }
                     if (needsToUpdate) {
-
-
-
                         val localizationRef = dbRef.child("$name/localization")
                         localizationRef.once(Constants.FIREBASE.contentType.VALUE)
                                 .then(fun (snapshot: dynamic) {
@@ -136,7 +132,7 @@ fun addLanguages(name: String, languages: Array<Pair<String, String>>): Promise<
                                                 }
                                                 Promise.all(promises.toTypedArray()).then {
                                                     it.forEach { translations ->
-                                                        values[nextIndex.toString()] = json("lang_key" to languages[it.indexOf(translations)].first,
+                                                        values[nextIndex.toString()] = json("lang_key" to addedLanguages[it.indexOf(translations)].first,
                                                                 "lang_value" to translations)
                                                         nextIndex += 1
                                                     }
