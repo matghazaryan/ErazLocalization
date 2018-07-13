@@ -530,12 +530,16 @@ private fun setupModal() {
     val modal = document.getElementById("modal1")
     val mobileSwitchElem = document.getElementById("is_mobile") as HTMLInputElement
     val generateValuesElem = document.getElementById("generate_values") as HTMLElement
+    val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
 
     val params = json("onCloseEnd" to fun() {
 
         if (screenNameInput.value.isNotEmpty()) {
-            setEditing(false, projectName, screenNameInput.value, keyInput.value)
+//            console.log("cancel editing")
+//            console.log(projectName, screenNameInput.value, generatedKeyInput.value)
+            setEditing(false, projectName, screenNameInput.value, generatedKeyInput.value)
         }
+
         form.reset()
         screenNameInput.disabled = false
         typeInput.disabled = false
