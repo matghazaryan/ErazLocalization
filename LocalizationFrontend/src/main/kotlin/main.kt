@@ -295,6 +295,7 @@ fun main(args: Array<String>) {
                     val HProjectAlias = document.createElement("h6") as HTMLHeadingElement
                     HProjectAlias.innerText = projectAlias
                     projectNameAndAlias.append(HProjectName, HProjectAlias)
+
                     // Export button
                     val exportButton = document.createElement("div") as HTMLDivElement
                     exportButton.addClass("export_button")
@@ -319,6 +320,7 @@ fun main(args: Array<String>) {
                     exportButton.append(dropdownTrigger, dropdownContent)
                     // end of export button
                     headerContainerBase.append(projectNameAndAlias)
+
                     headerContainer.appendChild(headerContainerBase)
 
                     //Table Data
@@ -375,10 +377,12 @@ fun main(args: Array<String>) {
 
                     table.append(tableHead, tableBody)
                     if (screens.count() > 0) {
+
+                        // Screens drop down filter
                         val comboBox = document.createElement("div") as HTMLDivElement
                         comboBox.addClass("input-field")
                         comboBox.addClass("col")
-                        comboBox.addClass("s12")
+                        comboBox.addClass("s3")
                         comboBox.id = "screens_combobox"
                         val select = document.createElement("select") as HTMLSelectElement
                         val allOption = document.createElement("option") as HTMLOptionElement
@@ -392,29 +396,41 @@ fun main(args: Array<String>) {
                             option.text = it
                             select.appendChild(option)
                         }
-                        val label = document.createElement("label") as HTMLLabelElement
-                        label.innerText = "Filter by screen name"
-                        comboBox.append(select, label)
 
+                        comboBox.append(select)
+
+
+//                        <div class="input-field col s6">
+//                        <i class="material-icons prefix">account_circle</i>
+//                        <input id="icon_prefix" type="text" class="validate">
+//                        <label for="icon_prefix">First Name</label>
+//                        </div>
+
+                        // Search field
                         val searchField = document.createElement("div")
-                        searchField.addClass("input-field")
-                        searchField.addClass("col")
-                        searchField.addClass("s6")
+                        searchField.addClass("input-field col s9")
+
                         val icon = document.createElement("i")
-                        icon.addClass("material-icons")
-                        icon.addClass("prefix")
+                        icon.addClass("material-icons prefix")
                         icon.innerHTML = "search"
+
                         val input = document.createElement("input") as HTMLInputElement
                         input.addClass("validate")
+                        input.type = "text"
                         input.id = "icon_search"
+
                         val placeholder = document.createElement("label") as HTMLLabelElement
                         placeholder.htmlFor = "icon_search"
                         placeholder.innerText = "Search"
                         searchField.append(icon, input, placeholder)
 
-                        headerContainerBase.appendChild(searchField)
-                        headerContainerBase.appendChild(comboBox)
+                        val filterContianer = document.createElement("div") as HTMLDivElement
+                        filterContianer.className = "row"
+                        filterContianer.appendChild(searchField)
+                        filterContianer.appendChild(comboBox)
+
                         headerContainerBase.appendChild(exportButton)
+                        headerContainer.appendChild(filterContianer)
 
                         input.addEventListener("input", fun(e: Event) {
                             select.selectedIndex = 2
