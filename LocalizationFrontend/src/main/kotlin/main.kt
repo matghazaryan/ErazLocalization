@@ -563,7 +563,7 @@ private fun setupModal() {
     generateValuesElem.addEventListener("click", fun(event: Event) {
         generateKey()
 
-        val generatedBaseValue = keyInput.value
+        val generatedBaseValue = keyInput.value.replace(Regex("\\d"), "")
 
         if (generatedBaseValue.isEmpty()) return
 
@@ -642,7 +642,7 @@ private fun setupModal() {
     })
 }
 
-private fun generateKey(): Unit {
+private fun generateKey() {
 
     val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
     val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
@@ -674,7 +674,7 @@ private fun generateKey(): Unit {
     generatedKeyInput.value = generatedKey
 }
 
-private fun setupCopyElement(): Unit {
+private fun setupCopyElement() {
     val copyElem = document.getElementById("content_copy")
     copyElem?.addEventListener("click", fun(event: Event) {
         val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
@@ -784,7 +784,7 @@ fun tableRowElementFromTableRowData(tableRowData: TableRowData, index: Int): HTM
     editElem.innerText = "edit"
     editElem.hidden = tableRowData.isEditing
 
-    editElem.addEventListener("click", fun(event: Event) {
+    editElem.addEventListener("click", fun(_: Event) {
         console.log("edit")
 
         val screenNameInput = document.getElementById("screen_autocomplete_input") as HTMLInputElement
