@@ -126,6 +126,10 @@ table {
     /*width: 55%;*/
 /*}*/
 
+.container {
+    width: 95%;
+}
+
 .export_button {
     margin-right: 15px;
 }
@@ -219,7 +223,7 @@ table tr:hover i { opacity:1 }
 
 tbody {
     display:block;
-    height: 500px;
+    height: 350px;
     overflow:auto;
 }
 thead, tbody tr {
