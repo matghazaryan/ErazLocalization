@@ -9,70 +9,124 @@
     <title>Localization</title>
 </head>
 <body>
+<!-- always keep those lines after <body> tag, from google documentation -->
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
 <header>
+    <script>
+        // Initialize Firebase
+        var config = {
+            apiKey: "AIzaSyC2_Mm4_s3YPDEtNiUpZa87B2KDA62onAk",
+            authDomain: "localization-1be56.firebaseapp.com",
+            databaseURL: "https://localization-1be56.firebaseio.com",
+            projectId: "localization-1be56",
+            storageBucket: "localization-1be56.appspot.com",
+            messagingSenderId: "358571947665"
+        };
+        firebase.initializeApp(config);
+        firebase.firestore().enablePersistence()
+  .then(function() {
+      // Initialize Cloud Firestore through firebase
+      var db = firebase.firestore();
+  })
+  .catch(function(err) {
+      if (err.code == 'failed-precondition') {
+          // Multiple tabs open, persistence can only be enabled
+          // in one tab at a a time.
+          // ...
+      } else if (err.code == 'unimplemented') {
+          // The current browser does not support all of the
+          // features required to enable persistence
+          // ...
+      }
+  });
+    </script>
+
     <nav class="top-nav">
         <div class="container">
-            <h1 class="header">Localization</h1>
+            <a href="index.html"><h1 class="header">Localization</h1></a>
         </div>
     </nav>
-
-
 </header>
-
 <main>
     <div class="container">
-        <div class="collection with-header">
-            <div class="collection-header"><h4>Projects</h4></div>
-
-            <div class="row collection-item">
-
+        <div class="collection with-header" id="collection-header" >
+            <div class="collection-header"><h4>Projects</h4>
+            </div>
+            <div class="row collection-item" id = "row">
                 <div class="col s12 m3">
-                    <div class="card">
+                    <div class="card modal-trigger" data-alias="new-project" data-target="modal1" id="new-project">
                         <div class="card-container">
                             <img src="images/icon-plus.png" alt="Add Project" height="36" width="36">
                             <p>Add Project</p>
                         </div>
                     </div>
                 </div>
-
-                <div class="col s12 m3">
-                    <div class="card">
-                        <div class="card-content black-text">
-                            <span class="card-title">Arca</span>
-                            <p>com.helix.arca</p>
-
-                            <div class="platform-container">
-                                <img src="images/icon-ios.png" alt="iOS" height="24" width="24">
-                                <img src="images/icon-android.png" alt="Android" height="24" width="24">
-                                <img src="images/icon-website.png" alt="Web" height="24" width="24">
-                            </div>
+                <div class="col s12 m6" id="indicator">
+                    <div class="preloader-wrapper active">
+                        <div class="spinner-layer spinner-red-only">
+                            <div class="circle-clipper left">
+                                <div class="circle"></div>
+                            </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="col s12 m3">
-                    <div class="card">
-                        <div class="card-content black-text">
-                            <span class="card-title">Globbing</span>
-                            <p>com.helix.globbing</p>
-
-                            <div class="platform-container">
-                                <img src="images/icon-ios.png" alt="iOS" height="24" width="24">
-                                <img src="images/icon-android.png" alt="Android" height="24" width="24">
-                                <img src="images/icon-website.png" alt="Web" height="24" width="24">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
+    <!-- Modal Structure -->
+    <div id="confirm_modal" class="modal">
+        <div class="modal-content">
+            <h4>Delete Project</h4>
+            <p>Are You shure to delete this project, after delete you can't restore it</p>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat" style="color: crimson" id="confirm_modal_delete">Delete</a>
+        </div>
+    </div>
+
+    <div id="modal1" class="modal modal-fixed-footer">
+        <div class="modal-content">
+            <h5 id="add_project_header">New Project</h5>
+            <div class="row">
+                <form class="col s12" id="create_project_form">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="project_name" type="text" pattern="[a-z|A-Z]{3,}" required class="validate" title="Please use only letters">
+                            <label for="project_name">Project Name</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="project_alias" type="text" class="validate" pattern="[a-z|A-Z]{3,}"required title="Please use only letters">
+                            <label for="project_alias">Alias</label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-field col s12" id="languages-combobox">
+                            <label>Supported Languages</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="waves-effect waves-green btn-flat" id="add_project">Save</a>
+        </div>
+    </div>
 </main>
-
-
 <script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
 <script type="text/javascript" src="../../../web/js/app.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="Dependencies/FileSaver.js"></script>
+<script type="text/javascript" src="Dependencies/JSZip/dist/jszip.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<script src="Dependencies/Extract.js"></script>
 </body>
 </html>

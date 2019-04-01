@@ -9,49 +9,126 @@
     <title>Localization</title>
 </head>
 <body>
+<!-- always keep those lines after <body> tag, from google documentation -->
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyC2_Mm4_s3YPDEtNiUpZa87B2KDA62onAk",
+        authDomain: "localization-1be56.firebaseapp.com",
+        databaseURL: "https://localization-1be56.firebaseio.com",
+        projectId: "localization-1be56",
+        storageBucket: "localization-1be56.appspot.com",
+        messagingSenderId: "358571947665"
+    };
+    firebase.initializeApp(config);
+</script>
 <header>
     <nav class="top-nav">
         <div class="container">
-            <h1 class="header">Localization</h1>
+            <a href="index.html"><h1 class="header">Localization</h1></a>
         </div>
     </nav>
-
-
 </header>
-
 <main>
     <div class="container">
-        <table class="highlight">
-            <thead>
-            <tr>
-                <th>№</th>
-                <th>Screen Name</th>
-                <th>Type</th>
-                <th>Key</th>
-                <th>English</th>
-                <th>Russian</th>
-                <th>Armenian</th>
-            </tr>
-            </thead>
 
-            <tbody>
-            <tr>
-                <td>1</td>
-                <td>Login</td>
-                <td>btn</td>
-                <td>title</td>
-                <td>Login</td>
-                <td>Login</td>
-                <td>Login</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="collection with-header" id="collection-header">
+            <div class="row collection-item" id="row">
+                <div class="col s12 m6">
+                    <div class="preloader-wrapper active">
+                        <div class="spinner-layer spinner-red-only">
+                            <div class="circle-clipper left">
+                                <div class="circle"></div>
+                            </div><div class="gap-patch">
+                            <div class="circle"></div>
+                        </div><div class="circle-clipper right">
+                            <div class="circle"></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Structure -->
+        <div id="confirm_modal" class="modal">
+            <div class="modal-content">
+                <h4>Delete row</h4>
+                <p>Are You shure to delete this row, after delete you can't restore it</p>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat" style="color: crimson" id="confirm_modal_delete">Delete</a>
+            </div>
+        </div>
+
+        <div id="modal1" class="modal modal-fixed-footer">
+            <div class="modal-content">
+                <h5 id="add_localization_heading">Add Localization</h5>
+                <div class="switch">
+                    <label>
+                        Mobile
+                        <input type="checkbox" checked="true" id="is_mobile">
+                        <span class="lever"></span>
+                    </label>
+                </div>
+                <div class="row">
+                    <form class="col s12" id="localization_form">
+                        <div class="col s12">
+                            <div class="row">
+                                <div class="input-field col s4" id="input_row">
+                                    <input type="text" id="screen_autocomplete_input" class="autocomplete validate" autocomplete="off" pattern=".{1,}" required title="">
+                                    <label for="screen_autocomplete_input">Screen Name</label>
+                                </div>
+                                <div class="input-field col s4">
+                                    <input type="text" id="type_autocomplete_input" class="autocomplete validate" autocomplete="off" pattern=".{1,}" required title="">
+                                    <label for="type_autocomplete_input">Type</label>
+                                </div>
+                                <div class="input-field col s4">
+                                    <input id="localization_value" type="text" class="validate" autocomplete="off" pattern="[a-zA-Z0-9_]*" required title="">
+                                    <label for="localization_value">Key</label>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s9">
+                                    <i class="material-icons prefix copy" id="content_copy">content_copy</i>
+                                    <input disabled id="disabled" value="" type="text" class="validate">
+                                    <label for="disabled">Key:</label>
+                                </div>
+                                <div class="input-field col s2">
+                                    <a href="#!" class="waves-effect waves-green btn teal" id="generate_values">Generate</a>
+                                </div>
+                            </div>
+                            <div id="localization_input">
+                                <!-- input list -->
+                            </div>
+                            <div class="row">
+                                <div class="input-field col s12">
+                                    <input id="localization_comment" type="text" autocomplete="off">
+                                    <label for="localization_comment">Comment</label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <input id="clipboard_input" type="text">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancel</a>
+                <a href="#!" class="waves-effect waves-green btn-flat" id="add_project">Save</a>
+            </div>
+        </div>
     </div>
 </main>
-
-
 <script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
 <script type="text/javascript" src="../../../web/js/app.js"></script>
 <script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/project.js"></script>
+<!-- attach scripts below to be able download zip -->
+<script src="Dependencies/Extract.js"></script>
+<script type="text/javascript" src="Dependencies/FileSaver.js"></script>
+<script type="text/javascript" src="Dependencies/JSZip/dist/jszip.js"></script>
 </body>
 </html>

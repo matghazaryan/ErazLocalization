@@ -1,6 +1,21 @@
 .gradle
 .idea
+
+# .DS_Store
+.DS_Store
+/LocalizationFrontend/.DS_Store
+/LocalizationFrontend/out/.DS_Store
+/LocalizationFrontend/out/production/.DS_Store
+/LocalizationFrontend/src/.DS_Store
+/LocalizationFrontend/src/main/.DS_Store
+/LocalizationFrontend/src/main/resources/.DS_Store
+/LocalizationFrontend/src/main/resources/Dependencies/.DS_Store
+/LocalizationFrontend/src/main/resources/Dependencies/JSZip/.DS_Store
+
+
 /build/*
 /LocalizationFrontend/web/*
 /LocalizationFrontend/out/*
 /LocalizationBackend/out/*
+/LocalizationFrontend/node
+/LocalizationFrontend/node_modules
