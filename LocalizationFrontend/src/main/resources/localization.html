@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/styles.css" media="screen,projection"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Localization</title>
+</head>
+<body>
+<!-- always keep those lines after <body> tag, from google documentation -->
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.1.0/firebase-database.js"></script>
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyC2_Mm4_s3YPDEtNiUpZa87B2KDA62onAk",
+        authDomain: "localization-1be56.firebaseapp.com",
+        databaseURL: "https://localization-1be56.firebaseio.com",
+        projectId: "localization-1be56",
+        storageBucket: "localization-1be56.appspot.com",
+        messagingSenderId: "358571947665"
+    };
+    firebase.initializeApp(config);
+</script>
+<p id="h1">
+    <h5> iOS </h5>
+    <p id="iOSH1" />
+    <h5> Android </h5>
+    <p id="andyH1" />
+</p>
+<script type="text/javascript" src="../../../web/js/lib/kotlin.js"></script>
+<script type="text/javascript" src="../../../web/js/app.js"></script>
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script type="text/javascript" src="js/project.js"></script>
+<!-- attach scripts below to be able download zip -->
+<script src="Dependencies/Extract.js"></script>
+<script type="text/javascript" src="Dependencies/FileSaver.js"></script>
+<script type="text/javascript" src="Dependencies/JSZip/dist/jszip.js"></script>
+</body>
+</html>

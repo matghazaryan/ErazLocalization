@@ -53,6 +53,8 @@ fun main(args: Array<String>) {
             })
 
             js("M").Modal.init(elems, params)
+            val confirmationModal = document.getElementById("confirm_modal")
+            js("M").Modal.init(confirmationModal, {})
 
             setupLanguageOptions()
 
@@ -170,16 +172,21 @@ fun main(args: Array<String>) {
                         deleteElem.addEventListener("click", fun(event: Event) {
                             event.stopPropagation()
                             val projectName = deleteElem.getAttribute("data-project_name") as String
-
-                            deleteProject(projectName) {
-                                if (it != null) {
-                                    alert("error")
-                                } else {
-                                    val elem = document.getElementById(projectCard.id) as HTMLDivElement
-                                    val parent = elem.parentElement as HTMLDivElement
-                                    val removedChild = parent.removeChild(elem)
+                            val modal = document.getElementById("confirm_modal")
+                            var instance = js("M").Modal.getInstance(modal)
+                            instance.open()
+                            val delete = document.getElementById("confirm_modal_delete")
+                            delete?.addEventListener("click", fun(e: Event) {
+                                deleteProject(projectName) {
+                                    if (it != null) {
+                                        alert("error")
+                                    } else {
+                                        val elem = document.getElementById(projectCard.id) as HTMLDivElement
+                                        val parent = elem.parentElement as HTMLDivElement
+                                        val removedChild = parent.removeChild(elem)
+                                    }
                                 }
-                            }
+                            })
                         })
 
                         val platformContainer = document.createElement("div") as HTMLDivElement
@@ -259,9 +266,11 @@ fun main(args: Array<String>) {
                 val projectAlias = it["alias"] as String
 
                 val languages = arrayListOf<String>()
+                val languageCodes = arrayListOf<String>()
                 val languagesJson = it["languages"] as Json
                 js("Object").values(languagesJson).forEach(fun(language: dynamic) {
                     languages.add(language["langName"] as String)
+                    languageCodes.add(language["langCode"] as String)
                 })
 
                 val screens = arrayOf<String>()
@@ -347,6 +356,9 @@ fun main(args: Array<String>) {
                     for (language in languages) {
                         val th = document.createElement("th") as HTMLTableCellElement
                         th.innerText = language
+                        th.onclick = {
+                            window.open("./localization.html?alias=${targetProjectAlias}&lng=${languageCodes[languages.indexOf(language)]}", "_blank")
+                        }
                         row.appendChild(th)
                     }
 
@@ -512,6 +524,36 @@ fun main(args: Array<String>) {
                     js("M").updateTextFields()
                     setupDropDown(it)
 
+                }
+            }
+        }
+    } else if (window.location.href.contains("localization.html")) {
+        window.onload = {
+            val url = URL(document.location!!.href)
+            val targetProjectAlias = url.searchParams.get("alias")
+            val targetProjectLanguage = url.searchParams.get("lng")
+
+            if (targetProjectAlias != null) {
+
+                val h1iOS = document.getElementById("iOSH1")
+                val h1andy = document.getElementById("andyH1")
+
+                getProject(targetProjectAlias) {
+                    if (h1iOS != null) {
+                        val customJson = generateIosString(it, targetProjectLanguage!!)
+                        val sequence = customJson.splitToSequence("\n")
+                        sequence.forEach {
+                            h1iOS.innerHTML += it + "<br>"
+                        }
+                    }
+                    if (h1andy != null) {
+                        val customJson = generateAndroidString(it, targetProjectLanguage!!)
+                        val sequence = htmlEntities(customJson).splitToSequence("\n")
+                        sequence.forEach {
+                            h1andy.innerHTML += it + "<br>"
+                        }
+
+                    }
                 }
             }
         }
@@ -1054,6 +1096,9 @@ external fun encodeURIComponent(uri: String): String
 external fun initScreenAutocompleteList(screenNames: Array<String>)
 external fun initTypeAutocompleteList(types: Array<String>)
 external fun saveiOS(project: Json)
+external fun generateIosString(project: Json, lprojectName: String): String
+external fun generateAndroidString(project: Json, lprojectName: String): String
 external fun saveAndroid(project: Json)
 external fun saveWeb(project: Json)
+external fun htmlEntities(xml: String): String
 external fun addLocalization(projectName: String, screanName: String, type: String, newKey: String, valuesMap: Json, isMobile: Boolean, comment: String?): Boolean

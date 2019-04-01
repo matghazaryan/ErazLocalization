@@ -54,7 +54,6 @@ fun getProjects(completion: (Array<HashMap<String, Any>>) -> Unit) {
             )
             projects.add(element)
         })
-        console.log("get project")
         completion(projects.toTypedArray())
     })
 }
@@ -63,6 +62,7 @@ fun getProject(name: String, listener: (Json) -> Unit) {
     val childRef = dbRef.child(name)
     childRef.on(Constants.FIREBASE.contentType.VALUE, fun (snapshot: dynamic) {
         val projectJson = snapshot.toJSON()
+        console.log(projectJson)
 
 //        if (projectJson == null) {
 //            alert("Project json is null")

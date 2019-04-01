@@ -4,12 +4,22 @@ function saveiOS(project) {
     let zip = new JSZip();
     for (let lprojectName in lprojects) {
         let currentProj = zip.folder(lprojectName + ".lproj");
-        let fileText = '';
-        let lproject = lprojects[lprojectName];
-        lproject.forEach(function (pair) {
-            for (let first in pair) {
-                if (pair[first].isMobile === true) {
-                    fileText += '"' + first.toString() + '" = "' + pair[first].key.toString() + '";';
+        let fileText = generateIosString(project, lprojectName);
+        currentProj.file(fileName, fileText);
+    }
+    zip.generateAsync({type: "blob"}).then(function (blob) {
+        saveAs(blob, project["name"] + "-iOS.zip");
+    })
+}
+
+function generateIosString(project, lprojectName) {
+    let lprojects = createCstomJson(project);
+    let fileText = '';
+    let lproject = lprojects[lprojectName];
+    lproject.forEach(function (pair) {
+    for (let first in pair) {
+             if (pair[first].isMobile === true) {
+                 fileText += '"' + first.toString() + '" = "' + pair[first].key.toString() + '";';
                     if (!pair[first].comment.toString().isEmpty) {
                         fileText += "// " + pair[first].comment.toString();
                     }
@@ -17,11 +27,7 @@ function saveiOS(project) {
                 }
             }
         });
-        currentProj.file(fileName, fileText);
-    }
-    zip.generateAsync({type: "blob"}).then(function (blob) {
-        saveAs(blob, project["name"] + "-iOS.zip");
-    })
+     return fileText
 }
 
 /*
@@ -64,26 +70,32 @@ function saveAndroid(project) {
     let projects = createCstomJson(project);
     let zip = new JSZip();
     for (let projectName in projects) {
-        let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<resources>\n";
+        let xml = generateAndroidString(project, projectName);
         let currentproject = zip.folder("values-" + projectName);
-        let proj = projects[projectName];
-        proj.forEach(function (pair) {
-            for (let first in pair) {
-                if (pair[first].isMobile === true) {
-                    xml += "\t<string name=\"" + first.toString() + '\">' + pair[first].key.toString() + "</string>";
-                    if (typeof pair[first].comment !== 'undefined') {
-                        xml += "<!--" + pair[first].comment.toString() + "-->"
-                    }
-                    xml += "\n"
-                }
-            }
-        });
-        xml += "</resources>";
         currentproject.file("strings.xml", xml);
     }
     zip.generateAsync({type: "blob"}).then(function (blob) {
         saveAs(blob, project["name"] + "-Android.zip");
     })
+}
+
+function generateAndroidString(project, projectName) {
+    let projects = createCstomJson(project);
+    let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<resources>\n";
+    let proj = projects[projectName];
+            proj.forEach(function (pair) {
+                for (let first in pair) {
+                    if (pair[first].isMobile === true) {
+                        xml += "\t<string name=\"" + first.toString() + '\">' + pair[first].key.toString() + "</string>";
+                        if (typeof pair[first].comment !== 'undefined') {
+                            xml += "<!--" + pair[first].comment.toString() + "-->"
+                        }
+                        xml += "\n"
+                    }
+                }
+            });
+            xml += "</resources>";
+            return xml
 }
 
 function saveWeb(project) {
@@ -103,3 +115,8 @@ function saveWeb(project) {
         saveAs(blob, project["name"] + "-Web.zip");
     })
 }
+
+function htmlEntities(str) {
+                    var htmlString = String(str).replace(/&/g, '&amp;').replace(/</g,     '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                    return htmlString;
+            }
