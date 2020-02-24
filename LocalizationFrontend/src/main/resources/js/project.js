@@ -53,7 +53,7 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, isMob
             // when know includes
             // get localizations
             let localization = dbRef.child(projectName + '/localization');
-            if (includeScrean) {
+            if (includeScreen) {
                 localization = dbRef.child(projectName + '/localization/' + screenName)
             }
 
@@ -61,13 +61,13 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, isMob
                 .then(function (snapshot) {
                     let values = [];
                     let newValue = {};
-                    let localizatonValues = [];
+                    let localisationValues = [];
                     if (typeof snapshot !== 'undefined' && snapshot.toJSON() !== null) {
                         newValue = snapshot.toJSON();
                         values = Object.values(newValue)
                     }
                     Object.keys(valuesMap).forEach(function (key) {
-                        localizatonValues.push({
+                        localisationValues.push({
                             'lang_key': key,
                             'lang_value': valuesMap[key]
                         });
@@ -75,11 +75,11 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, isMob
                     if (typeof comment === "undefined") {
                         comment = ""
                     }
-                    if (includeScrean) {
+                    if (includeScreen) {
                         newValue[values.length] = {
                             'key': newKey,
                             'comment': comment,
-                            'values': localizatonValues,
+                            'values': localisationValues,
                             'isMobile': isMobile,
                             'isEditing': false
                         };
@@ -87,7 +87,7 @@ function addLocalization(projectName, screenName, type, newKey, valuesMap, isMob
                         newValue[screenName] = [{
                             'key': newKey,
                             'comment': comment,
-                            'values': localizatonValues,
+                            'values': localisationValues,
                             'isMobile': isMobile,
                             'isEditing': false
                         }];

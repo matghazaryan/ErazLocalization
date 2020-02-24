@@ -308,6 +308,7 @@ fun removeRow(projectName: String, screen: String, key: String) {
 }
 
 fun editLocalization(name: String, screen: String, key: String, languageCode: String, value: String) {
+    console.log("name = ", name, "screen = ", screen, "key = ", key)
     val childRef = dbRef.child("$name/localization/$screen")
     childRef.once(Constants.FIREBASE.contentType.VALUE)
             .then(fun (snapshot: dynamic) {

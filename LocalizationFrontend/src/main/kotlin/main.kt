@@ -312,11 +312,11 @@ fun main(args: Array<String>) {
                     val dropdownTrigger = document.createElement("a")
                     dropdownTrigger.addClass("dropdown-trigger btn")
                     dropdownTrigger.setAttribute("href", "#")
-                    dropdownTrigger.setAttribute("data-target", "dropdown1")
+                    dropdownTrigger.setAttribute("data-target", "dropdown")
                     dropdownTrigger.innerHTML = "Export"
                     val dropdownContent = document.createElement("ul") as HTMLUListElement
                     dropdownContent.addClass("dropdown-content")
-                    dropdownContent.id = "dropdown1"
+                    dropdownContent.id = "dropdown"
                     val exportiOS = document.createElement("li") as HTMLLIElement
                     exportiOS.innerHTML = "<a href=\"#!\" id=\"export_ios\">iOS</a>"
                     val divider = document.createElement("li") as HTMLLIElement
@@ -354,10 +354,27 @@ fun main(args: Array<String>) {
                     row.append(tableIndex, tableScreen, tableKey, tableComment)
 
                     for (language in languages) {
+                        val index = languages.indexOf(language)
                         val th = document.createElement("th") as HTMLTableCellElement
                         th.innerText = language
-                        th.onclick = {
-                            window.open("./localization.html?alias=${targetProjectAlias}&lng=${languageCodes[languages.indexOf(language)]}", "_blank")
+                        th.addClass("dropdown-trigger")
+                        th.setAttribute("href", "#")
+                        th.setAttribute("data-target", "dropdown${index}")
+                        val openDropdownContent = document.createElement("ul") as HTMLUListElement
+                        openDropdownContent.addClass("dropdown-content")
+                        openDropdownContent.id = "dropdown${index}"
+                        val openiOS = document.createElement("li") as HTMLLIElement
+                        openiOS.innerHTML = "<a href=\"#!\" id=\"open_ios${index}\">iOS</a>"
+                        val openAndroid = document.createElement("li") as HTMLLIElement
+                        openAndroid.innerHTML = "<a href=\"#!\" id=\"open_android${index}\">Android</a>"
+                        openDropdownContent.append(openiOS, divider, openAndroid)
+                        th.append(openDropdownContent)
+                        openiOS.onclick = {
+                            console.log(th)
+                            window.open("./localization.html?alias=${targetProjectAlias}&lng=${languageCodes[index]}&OS=iOS", "_blank")
+                        }
+                        openAndroid.onclick = {
+                            window.open("./localization.html?alias=${targetProjectAlias}&lng=${languageCodes[index]}&OS=Android", "_blank")
                         }
                         row.appendChild(th)
                     }
@@ -532,27 +549,27 @@ fun main(args: Array<String>) {
             val url = URL(document.location!!.href)
             val targetProjectAlias = url.searchParams.get("alias")
             val targetProjectLanguage = url.searchParams.get("lng")
+            val targetProjectOS = url.searchParams.get("OS")
 
             if (targetProjectAlias != null) {
-
-                val h1iOS = document.getElementById("iOSH1")
-                val h1andy = document.getElementById("andyH1")
-
                 getProject(targetProjectAlias) {
-                    if (h1iOS != null) {
+                    if (targetProjectOS.equals("iOS")) {
                         val customJson = generateIosString(it, targetProjectLanguage!!)
                         val sequence = customJson.splitToSequence("\n")
+                        val h1iOS = document.createElement("h5")
                         sequence.forEach {
                             h1iOS.innerHTML += it + "<br>"
                         }
+                        document.getElementById("h1")?.appendChild(h1iOS)
                     }
-                    if (h1andy != null) {
+                    if (targetProjectOS.equals("Android")) {
                         val customJson = generateAndroidString(it, targetProjectLanguage!!)
                         val sequence = htmlEntities(customJson).splitToSequence("\n")
+                        val h1andy = document.createElement("h5")
                         sequence.forEach {
                             h1andy.innerHTML += it + "<br>"
                         }
-
+                        document.getElementById("h1")?.appendChild(h1andy)
                     }
                 }
             }
@@ -657,8 +674,8 @@ private fun setupModal() {
             return
         }
 
-        val normalizedKey = screenName + "_" + type + "_" + key
-        console.log(normalizedKey)
+        val normalizedKey = generatedKeyInput.value.trim('_')
+        console.log("normalizedKey = ", normalizedKey)
 
         val mode = modal?.getAttribute("data-mode")
         if (mode == "editing") {
@@ -705,7 +722,6 @@ private fun generateKey() {
     val typeInput = document.getElementById("type_autocomplete_input") as HTMLInputElement
     val keyInput = document.getElementById("localization_value") as HTMLInputElement
     val generatedKeyInput = document.getElementById("disabled") as HTMLInputElement
-    val mobileSwitch = document.getElementById("is_mobile") as HTMLInputElement
 
     val screenName = screenNameInput.value.trim('_')
     val type = typeInput.value.trim('_')
@@ -714,9 +730,6 @@ private fun generateKey() {
 
     var generatedKey = String()
 
-    if (mobileSwitch.checked) {
-        generatedKey += "m_"
-    }
 
     generatedKey += screenName
 
@@ -766,7 +779,7 @@ private fun setupDropDown(json: Json) {
     })
 }
 
-fun tableRowDataFromScreen(name: String, screen: Json?): Array<TableRowData> {
+fun screenNameInputDataFromScreen(name: String, screen: Json?): Array<TableRowData> {
     val array = arrayListOf<TableRowData>()
     if (screen != null) {
         Object().values(screen).forEach(fun(localization: dynamic) {

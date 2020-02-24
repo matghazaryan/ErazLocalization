@@ -19,8 +19,8 @@ function generateIosString(project, lprojectName) {
     lproject.forEach(function (pair) {
     for (let first in pair) {
              if (pair[first].isMobile === true) {
-                 fileText += '"' + first.toString() + '" = "' + pair[first].key.toString() + '";';
-                    if (!pair[first].comment.toString().isEmpty) {
+                 fileText += '"' + first.toString() + '" = "' + pair[first].key.toString().replace("%s", "%@") + '";';
+                    if (pair[first].comment.toString() != "") {
                         fileText += "// " + pair[first].comment.toString();
                     }
                     fileText += "\n";
@@ -55,9 +55,12 @@ function createCstomJson(project) {
                 let object = Object.values(value.values).find(function (value1) {
                     return value1.lang_key === projectName;
                 });
-                proj[value.key] = {"key" : object.lang_value,
-                                   "comment": value.comment,
-                                   "isMobile": value.isMobile};
+                if (object === undefined) {
+                } else {
+                    proj[value.key] = {"key" : object.lang_value,
+                                       "comment": value.comment,
+                                       "isMobile": value.isMobile};
+                }
             });
             projects.push(proj);
         });
@@ -86,8 +89,9 @@ function generateAndroidString(project, projectName) {
             proj.forEach(function (pair) {
                 for (let first in pair) {
                     if (pair[first].isMobile === true) {
-                        xml += "\t<string name=\"" + first.toString() + '\">' + pair[first].key.toString() + "</string>";
-                        if (typeof pair[first].comment !== 'undefined') {
+                        xml += "\t<string name=\"" + first.toString() + '\">' + pair[first].key.toString().replace("%@", "%s") + "</string>";
+                        if (pair[first].comment.toString() != "") {
+                            console.log(pair[first].comment)
                             xml += "<!--" + pair[first].comment.toString() + "-->"
                         }
                         xml += "\n"
